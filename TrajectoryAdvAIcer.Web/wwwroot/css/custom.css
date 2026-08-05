@@ -1,0 +1,202 @@
+﻿:root {
+    --primary: #F8A2F9;
+    --primary-dark: #d97adc;
+    --accent: #FFD403;
+    --success: #33B47C;
+    --light-bg: #f8f9fa;
+    --text: #000000;
+    --card-shadow: 0 12px 28px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04);
+    --border-radius: 16px;
+    --transition: all 0.2s ease;
+}
+
+body {
+    background-color: #fafafa;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--text);
+}
+
+.display-4, h1 {
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+}
+
+.card {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    transition: var(--transition);
+}
+
+    .card:hover {
+        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
+    }
+
+.card-header {
+    background: linear-gradient(135deg, var(--primary), #e68ae8);
+    border-bottom: none;
+    color: #fff;
+    font-weight: 600;
+    border-radius: var(--border-radius) var(--border-radius) 0 0 !important;
+    padding: 1.25rem 1.5rem;
+}
+
+    .card-header.bg-success {
+        background: linear-gradient(135deg, var(--success), #2a9d6b) !important;
+    }
+
+    .card-header.bg-danger {
+        background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+    }
+
+.btn-primary {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+    font-weight: 600;
+    border-radius: 30px;
+    padding: 0.6rem 2rem;
+    transition: var(--transition);
+    box-shadow: 0 4px 10px rgba(248, 162, 249, 0.4);
+}
+
+    .btn-primary:hover {
+        background-color: var(--primary-dark);
+        border-color: var(--primary-dark);
+        box-shadow: 0 6px 15px rgba(248, 162, 249, 0.6);
+        transform: translateY(-1px);
+    }
+
+.btn-outline-primary {
+    border-color: var(--primary);
+    color: var(--primary);
+    border-radius: 30px;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+    .btn-outline-primary:hover {
+        background-color: var(--primary);
+        color: #fff;
+    }
+
+.btn-success {
+    background-color: var(--success);
+    border-color: var(--success);
+    border-radius: 30px;
+    font-weight: 600;
+    box-shadow: 0 4px 10px rgba(51, 180, 124, 0.4);
+}
+
+    .btn-success:hover {
+        background-color: #2a9d6b;
+    }
+
+.btn-info {
+    border-radius: 30px;
+    font-weight: 600;
+}
+
+.form-select, .form-control {
+    border-radius: 12px;
+    border: 1px solid #dee2e6;
+    transition: var(--transition);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+    .form-select:focus, .form-control:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 0.2rem rgba(255, 212, 3, 0.25);
+    }
+
+.spinner-border {
+    color: var(--accent);
+}
+
+.spinner-border-sm {
+    color: #fff;
+}
+
+.progress {
+    height: 10px;
+    border-radius: 20px;
+    background-color: #f1f1f1;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    border-radius: 20px;
+}
+
+.alert-info {
+    background-color: #fff3e0;
+    border-color: var(--accent);
+    color: #b8860b;
+    border-radius: 12px;
+}
+
+.alert-danger {
+    border-radius: 12px;
+}
+
+.btn-close {
+    filter: invert(0.5);
+}
+
+@keyframes fadeSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card-result {
+    animation: fadeSlideUp 0.5s ease forwards;
+}
+
+a, .text-muted {
+    color: #6c757d !important;
+}
+
+.bi {
+    vertical-align: middle;
+}
+
+.btn-warning {
+    background-color: #FFD403;
+    border-color: #FFD403;
+    color: #000;
+    font-weight: 600;
+    border-radius: 30px;
+    transition: var(--transition);
+}
+
+    .btn-warning:hover {
+        background-color: #e6be03;
+        border-color: #e6be03;
+        color: #000;
+    }
+
+.btn-outline-warning {
+    border-color: #FFD403;
+    color: #FFD403;
+    border-radius: 30px;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+    .btn-outline-warning:hover {
+        background-color: #FFD403;
+        color: #000;
+    }
+
+.card-header.bg-warning {
+    background: #FFD403 !important;
+    color: #000 !important;
+}

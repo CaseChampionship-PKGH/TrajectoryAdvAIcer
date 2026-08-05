@@ -1,0 +1,47 @@
+<Solution>
+  <Folder Name="/Common/">
+    <Project Path="Common/TrajectoryAdvAIcer.Common.Core/TrajectoryAdvAIcer.Common.Core.csproj" Id="206ea702-1942-47b5-8f8e-86f696b4144c" />
+    <Project Path="Common/TrajectoryAdvAIcer.Common.Mvc/TrajectoryAdvAIcer.Common.Mvc.csproj" Id="6918fb53-29b7-4086-83ac-2b8639ecc426" />
+  </Folder>
+  <Folder Name="/Core/" />
+  <Folder Name="/Core/Agents/">
+    <Project Path="Core/Agents/TrajectoryAdvAIcer.Agent.Contracts/TrajectoryAdvAIcer.Agent.Contracts.csproj" Id="68b55988-adea-4888-9311-7196c45ed42f" />
+    <Project Path="Core/Agents/TrajectoryAdvAIcer.Agent.GigaChat/TrajectoryAdvAIcer.Agent.GigaChat.csproj" Id="881b7649-a325-4ab1-bc9e-bdd4bcf4d63d" />
+    <Project Path="Core/Agents/TrajectoryAdvAIcer.Agent.OpenAI/TrajectoryAdvAIcer.Agent.OpenAI.csproj" Id="b5b9255e-43ee-42f6-902f-d2a47ef3b8fe" />
+    <Project Path="Core/Agents/TrajectoryAdvAIcer.Agent.YandexGPT/TrajectoryAdvAIcer.Agent.YandexGPT.csproj" Id="d2e83fc1-5bfe-40a5-ab1a-40321e53eb1b" />
+    <Project Path="Core/Agents/TrajectoryAdvAIcer.Agent/TrajectoryAdvAIcer.Agent.csproj" Id="15fb6390-fabb-4a83-97eb-74fd0969c9a0" />
+  </Folder>
+  <Folder Name="/Core/Analysis/">
+    <Project Path="Core/Analysis/TrajectoryAdvAIcer.Analysis.Contracts/TrajectoryAdvAIcer.Analysis.Contracts.csproj" Id="f701e3fb-9175-4c7d-8de4-765245a03b57" />
+    <Project Path="Core/Analysis/TrajectoryAdvAIcer.Analysis/TrajectoryAdvAIcer.Analysis.csproj" Id="56ca2697-c262-4741-9a0f-4bed4082fb60" />
+  </Folder>
+  <Folder Name="/Core/Entities/">
+    <Project Path="Core/Entities/TrajectoryAdvAIcer.Entities/TrajectoryAdvAIcer.Entities.csproj" Id="03f072d3-5937-4d75-a76c-d4353c6e4def" />
+  </Folder>
+  <Folder Name="/Core/Parsing/">
+    <Project Path="Core/Parsing/TrajectoryAdvAIcer.Parsing.Contracts/TrajectoryAdvAIcer.Parsing.Contracts.csproj" Id="9e217f39-06b9-4ad1-8121-43ceb36de55f" />
+    <Project Path="Core/Parsing/TrajectoryAdvAIcer.Parsing.Csv/TrajectoryAdvAIcer.Parsing.Csv.csproj" Id="80aebad6-6357-43b8-a40d-d66fc18def30" />
+    <Project Path="Core/Parsing/TrajectoryAdvAIcer.Parsing.Excel/TrajectoryAdvAIcer.Parsing.Excel.csproj" Id="d1202028-b3a9-4bec-bfa1-8091c17e6833" />
+    <Project Path="Core/Parsing/TrajectoryAdvAIcer.Parsing.Json/TrajectoryAdvAIcer.Parsing.Json.csproj" Id="7dbf0d9d-d11f-4543-9fe1-f8a2e6319250" />
+    <Project Path="Core/Parsing/TrajectoryAdvAIcer.Parsing/TrajectoryAdvAIcer.Parsing.csproj" Id="81c0357f-7bee-4592-88c9-04a727c61484" />
+  </Folder>
+  <Folder Name="/Core/Reporting/">
+    <Project Path="Core/Reporting/TrajectoryAdvAIcer.Reporting.Contracts/TrajectoryAdvAIcer.Reporting.Contracts.csproj" Id="afac84e6-43e4-4b6d-b92e-cb3d5fa88cdf" />
+    <Project Path="Core/Reporting/TrajectoryAdvAIcer.Reporting/TrajectoryAdvAIcer.Reporting.csproj" Id="ea353f40-5abe-48d1-8fd1-fc9853e244f9" />
+  </Folder>
+  <Folder Name="/Core/Services/">
+    <Project Path="Core/Services/TrajectoryAdvAIcer.Services.Contracts/TrajectoryAdvAIcer.Services.Contracts.csproj" Id="0ebd6e3a-bfbe-4238-9da1-41d14f0b07fa" />
+    <Project Path="Core/Services/TrajectoryAdvAIcer.Services/TrajectoryAdvAIcer.Services.csproj" Id="c7830ca0-bd7c-4836-8fc0-750927d4b248" />
+  </Folder>
+  <Folder Name="/Core/Validation/">
+    <Project Path="Core/Validation/TrajectoryAdvAIcer.Validation.Contracts/TrajectoryAdvAIcer.Validation.Contracts.csproj" Id="36a68661-51f8-4e02-a822-b041e0af5765" />
+    <Project Path="Core/Validation/TrajectoryAdvAIcer.Validation/TrajectoryAdvAIcer.Validation.csproj" Id="7e4b2373-111e-4bca-b2ac-2360885bd76b" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Project Path="TrajectoryAdvAIcer.Api/TrajectoryAdvAIcer.Api.csproj" />
+  <Project Path="TrajectoryAdvAIcer.Web/TrajectoryAdvAIcer.Web.csproj" Id="110a4ee0-1c0d-4e9d-8360-bc270717a7ca" />
+</Solution>

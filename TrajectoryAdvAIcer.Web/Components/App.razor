@@ -1,0 +1,110 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    <link rel="stylesheet" href="bootstrap/bootstrap.min.css" />
+    <link rel="stylesheet" href="app.css" />
+	<link rel="stylesheet" href="css/custom.css" />
+    <link rel="stylesheet" href="TrajectoryAdvAIcer.Web.styles.css" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <HeadOutlet />
+</head>
+
+<body>
+    <Routes />
+    <script src="_framework/blazor.web.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+	<script>
+		window.downloadFileFromStream = async (streamRef, fileName) => {
+			const arrayBuffer = await streamRef.arrayBuffer();
+			const blob = new Blob([arrayBuffer]);
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = fileName;
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			URL.revokeObjectURL(url);
+		};
+
+
+		window.charts = {};
+
+		window.renderBarChart = (labels, data) => {
+			const ctx = document.getElementById('barChart').getContext('2d');
+			if (window.charts.bar) window.charts.bar.destroy();
+			window.charts.bar = new Chart(ctx, {
+				type: 'bar',
+				data: {
+					labels: labels,
+					datasets: [{
+						label: 'Средний балл',
+						data: data,
+						backgroundColor: [
+							'rgba(255, 99, 132, 0.6)',
+							'rgba(54, 162, 235, 0.6)',
+							'rgba(255, 206, 86, 0.6)',
+							'rgba(75, 192, 192, 0.6)',
+							'rgba(153, 102, 255, 0.6)'
+						],
+						borderColor: [
+							'rgba(255, 99, 132, 1)',
+							'rgba(54, 162, 235, 1)',
+							'rgba(255, 206, 86, 1)',
+							'rgba(75, 192, 192, 1)',
+							'rgba(153, 102, 255, 1)'
+						],
+						borderWidth: 1
+					}]
+				},
+				options: {
+					scales: { y: { beginAtZero: true, max: 10 } }
+				}
+			});
+		};
+
+		window.renderRadarChart = (labels, data) => {
+			const ctx = document.getElementById('radarChart').getContext('2d');
+			if (window.charts.radar) window.charts.radar.destroy();
+			window.charts.radar = new Chart(ctx, {
+				type: 'radar',
+				data: {
+					labels: labels,
+					datasets: [{
+						label: 'Профиль удовлетворённости',
+						data: data,
+						borderColor: 'rgba(75, 192, 192, 1)',
+						backgroundColor: 'rgba(75, 192, 192, 0.2)'
+					}]
+				},
+				options: {
+					scales: { r: { min: 0, max: 10 } }
+				}
+			});
+		};
+
+		window.renderDistributionChart = (counts) => {
+			const ctx = document.getElementById('distChart').getContext('2d');
+			if (window.charts.dist) window.charts.dist.destroy();
+			window.charts.dist = new Chart(ctx, {
+				type: 'bar',
+				data: {
+					labels: ['1-3 (низкая)', '4-7 (средняя)', '8-10 (высокая)'],
+					datasets: [{
+						label: 'Процент ответов',
+						data: counts,
+						backgroundColor: ['#FFC107', '#FF9800', '#4CAF50']
+					}]
+				},
+				options: {
+					scales: { y: { beginAtZero: true, title: { display: true, text: '%' } } }
+				}
+			});
+		};
+	</script>
+</body>
+</html>

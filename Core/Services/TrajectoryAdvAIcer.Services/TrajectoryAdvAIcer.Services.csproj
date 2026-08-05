@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Agents\TrajectoryAdvAIcer.Agent.Contracts\TrajectoryAdvAIcer.Agent.Contracts.csproj" />
+    <ProjectReference Include="..\..\Analysis\TrajectoryAdvAIcer.Analysis.Contracts\TrajectoryAdvAIcer.Analysis.Contracts.csproj" />
+    <ProjectReference Include="..\..\Parsing\TrajectoryAdvAIcer.Parsing.Contracts\TrajectoryAdvAIcer.Parsing.Contracts.csproj" />
+    <ProjectReference Include="..\TrajectoryAdvAIcer.Services.Contracts\TrajectoryAdvAIcer.Services.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

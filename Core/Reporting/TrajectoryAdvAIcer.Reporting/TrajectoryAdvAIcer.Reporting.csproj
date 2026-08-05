@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ClosedXML" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Agents\TrajectoryAdvAIcer.Agent.Contracts\TrajectoryAdvAIcer.Agent.Contracts.csproj" />
+    <ProjectReference Include="..\..\Services\TrajectoryAdvAIcer.Services.Contracts\TrajectoryAdvAIcer.Services.Contracts.csproj" />
+    <ProjectReference Include="..\TrajectoryAdvAIcer.Reporting.Contracts\TrajectoryAdvAIcer.Reporting.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

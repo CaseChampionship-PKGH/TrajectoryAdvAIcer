@@ -1,0 +1,24 @@
+<Project>
+  <!-- This file prevents unintended imports of unrelated MSBuild files -->
+  <PropertyGroup>
+    <!-- Включение централизованного управления пакетами -->
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <!-- Включение возможности явного указания версий транзитивных зависимостей -->
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+    <!-- Явное включение возможности переопределять версии пакетов -->
+    <EnablePackageVersionOverride>true</EnablePackageVersionOverride>
+  </PropertyGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageVersion Include="AutoMapper" Version="16.1.1" />
+    <PackageVersion Include="ClosedXML" Version="0.105.0" />
+    <PackageVersion Include="CsvHelper" Version="33.1.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.9" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="9.0.17" />
+    <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageVersion Include="System.Text.Encoding.CodePages" Version="10.0.9" />
+  </ItemGroup>
+</Project>

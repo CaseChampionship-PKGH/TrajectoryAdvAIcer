@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Common\TrajectoryAdvAIcer.Common.Mvc\TrajectoryAdvAIcer.Common.Mvc.csproj" />
+    <ProjectReference Include="..\Core\Agents\TrajectoryAdvAIcer.Agent.GigaChat\TrajectoryAdvAIcer.Agent.GigaChat.csproj" />
+    <ProjectReference Include="..\Core\Agents\TrajectoryAdvAIcer.Agent.OpenAI\TrajectoryAdvAIcer.Agent.OpenAI.csproj" />
+    <ProjectReference Include="..\Core\Agents\TrajectoryAdvAIcer.Agent.YandexGPT\TrajectoryAdvAIcer.Agent.YandexGPT.csproj" />
+    <ProjectReference Include="..\Core\Agents\TrajectoryAdvAIcer.Agent\TrajectoryAdvAIcer.Agent.csproj" />
+    <ProjectReference Include="..\Core\Analysis\TrajectoryAdvAIcer.Analysis\TrajectoryAdvAIcer.Analysis.csproj" />
+    <ProjectReference Include="..\Core\Parsing\TrajectoryAdvAIcer.Parsing.Csv\TrajectoryAdvAIcer.Parsing.Csv.csproj" />
+    <ProjectReference Include="..\Core\Parsing\TrajectoryAdvAIcer.Parsing.Excel\TrajectoryAdvAIcer.Parsing.Excel.csproj" />
+    <ProjectReference Include="..\Core\Parsing\TrajectoryAdvAIcer.Parsing.Json\TrajectoryAdvAIcer.Parsing.Json.csproj" />
+    <ProjectReference Include="..\Core\Parsing\TrajectoryAdvAIcer.Parsing\TrajectoryAdvAIcer.Parsing.csproj" />
+    <ProjectReference Include="..\Core\Reporting\TrajectoryAdvAIcer.Reporting\TrajectoryAdvAIcer.Reporting.csproj" />
+    <ProjectReference Include="..\Core\Services\TrajectoryAdvAIcer.Services.Contracts\TrajectoryAdvAIcer.Services.Contracts.csproj" />
+    <ProjectReference Include="..\Core\Services\TrajectoryAdvAIcer.Services\TrajectoryAdvAIcer.Services.csproj" />
+    <ProjectReference Include="..\Core\Validation\TrajectoryAdvAIcer.Validation\TrajectoryAdvAIcer.Validation.csproj" />
+  </ItemGroup>
+
+</Project>
