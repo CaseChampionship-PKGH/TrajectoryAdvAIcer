@@ -15,43 +15,43 @@ public class DefaultPromptProvider : IPromptProvider
         sb.AppendLine($"Проанализируй ответы слушателей по критерию «{criterionData.CriterionName}».");
         sb.AppendLine();
 
-        var stats = criterionData.Statistics;
-        if (stats != null)
-        {
-            if (stats.Average.HasValue)
-            {
-                sb.AppendLine($"Статистика: средний балл — {stats.Average:F1} из 10.");
-                if (stats.Distribution != null)
-                {
-                    sb.AppendLine($"Распределение оценок: 1-3: {stats.PercentLow:F1}%, " +
-                                  $"4-7: {stats.PercentMedium:F1}%, " +
-                                  $"8-10: {stats.PercentHigh:F1}%.");
-                }
-            }
-            else if (stats.YesCount.HasValue)
-            {
-                sb.AppendLine($"Статистика: Вопрос - «{stats.Question.QuestionText}»: \"Да\" — {stats.YesCount} чел. ({stats.YesPercent:F1}%), " +
-                              $"\"Нет\" — {stats.NoCount} чел. ({stats.NoPercent:F1}%).");
-            }
-        }
+        //var stats = criterionData.Statistics;
+        //if (stats != null)
+        //{
+        //    if (stats.Average.HasValue)
+        //    {
+        //        sb.AppendLine($"Статистика: средний балл — {stats.Average:F1} из 10.");
+        //        if (stats.Distribution != null)
+        //        {
+        //            sb.AppendLine($"Распределение оценок: 1-3: {stats.PercentLow:F1}%, " +
+        //                          $"4-7: {stats.PercentMedium:F1}%, " +
+        //                          $"8-10: {stats.PercentHigh:F1}%.");
+        //        }
+        //    }
+        //    else if (stats.YesCount.HasValue)
+        //    {
+        //        sb.AppendLine($"Статистика: Вопрос - «{stats.Question.QuestionText}»: \"Да\" — {stats.YesCount} чел. ({stats.YesPercent:F1}%), " +
+        //                      $"\"Нет\" — {stats.NoCount} чел. ({stats.NoPercent:F1}%).");
+        //    }
+        //}
 
-        sb.AppendLine();
-        sb.AppendLine("Ответы на вопросы:");
-        foreach (var qa in criterionData.Questions)
-        {
-            if (qa.Answers.Count == 0)
-            {
-                continue;
-            }
+        //sb.AppendLine();
+        //sb.AppendLine("Ответы на вопросы:");
+        //foreach (var qa in criterionData.Questions)
+        //{
+        //    if (qa.Answers.Count == 0)
+        //    {
+        //        continue;
+        //    }
 
-            sb.AppendLine($"Вопрос: «{qa.Question.QuestionText}»");
-            foreach (var ans in qa.Answers)
-            {
-                sb.AppendLine($"- «{ans}»");
-            }
+        //    sb.AppendLine($"Вопрос: «{qa.Question.QuestionText}»");
+        //    foreach (var ans in qa.Answers)
+        //    {
+        //        sb.AppendLine($"- «{ans}»");
+        //    }
 
-            sb.AppendLine();
-        }
+        //    sb.AppendLine();
+        //}
 
         sb.AppendLine("На основе этих данных напиши Примечание на 3-8 предложений деловым стилем. " +
                       "Указывай точные цифры. Верни ответ в чистом тексте без markdown. Не придумывай факты, опирайся только на предоставленные ответы.");
@@ -76,24 +76,24 @@ public class DefaultPromptProvider : IPromptProvider
         }
 
         // Сводная статистика
-        sb.AppendLine("Сводная статистика:");
-        foreach (var c in allData.AllCriteriaData)
-        {
-            var s = c.Statistics;
-            if (s == null)
-            {
-                continue;
-            }
+        //sb.AppendLine("Сводная статистика:");
+        //foreach (var c in allData.AllCriteriaData)
+        //{
+        //    var s = c.Statistics;
+        //    if (s == null)
+        //    {
+        //        continue;
+        //    }
 
-            if (s.Average.HasValue)
-            {
-                sb.AppendLine($"- {c.CriterionName}: средний балл {s.Average:F1}");
-            }
-            else if (s.YesCount.HasValue)
-            {
-                sb.AppendLine($"- {c.CriterionName}, Вопрос - «{s.Question.QuestionText}»: Да — {s.YesCount}, Нет — {s.NoCount} ({s.YesPercent:F1}%)");
-            }
-        }
+        //    if (s.Average.HasValue)
+        //    {
+        //        sb.AppendLine($"- {c.CriterionName}: средний балл {s.Average:F1}");
+        //    }
+        //    else if (s.YesCount.HasValue)
+        //    {
+        //        sb.AppendLine($"- {c.CriterionName}, Вопрос - «{s.Question.QuestionText}»: Да — {s.YesCount}, Нет — {s.NoCount} ({s.YesPercent:F1}%)");
+        //    }
+        //}
 
         // Сырые предложения по исключению и добавлению тем
         if (allData.ExcludedTopics.Count > 0)

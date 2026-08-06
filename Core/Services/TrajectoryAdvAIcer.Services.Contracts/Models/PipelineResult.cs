@@ -1,4 +1,4 @@
-﻿using TrajectoryAdvAIcer.Analysis.Contracts.Models;
+﻿using TrajectoryAdvAIcer.Entities.Models;
 
 namespace TrajectoryAdvAIcer.Services.Contracts.Models;
 
@@ -13,7 +13,12 @@ public record PipelineResult
     public List<string> Errors { get; set; } = null!;
 
     /// <summary>
-    /// Статистика
+    /// История обучения
     /// </summary>
-    public AnalysisResult AnalysisResult { get; set; } = null!;
+    public LearningHistory LearningHistory { get; set; } = null!;
+
+    /// <summary>
+    /// Реестр курсов
+    /// </summary>
+    public CourseCatalog CourseCatalog { get; set; } = null!;
 }

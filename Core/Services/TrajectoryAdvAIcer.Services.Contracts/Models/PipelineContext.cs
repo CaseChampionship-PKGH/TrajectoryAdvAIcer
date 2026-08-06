@@ -8,14 +8,24 @@ namespace TrajectoryAdvAIcer.Services.Contracts.Models;
 public record PipelineContext
 {
     /// <summary>
-    /// Файл с тестами
+    /// Файл с историей обучения
     /// </summary>
-    public Stream UserAnswersStream { get; set; } = null!;
+    public Stream LearningHistoryStream { get; set; } = null!;
 
     /// <summary>
-    /// Имя файла с тестом
+    /// Имя файла с историей обучения
     /// </summary>
-    public string UserAnswersFileName { get; set; } = string.Empty;
+    public string LearningHistoryFileName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Файл с реестром курсов
+    /// </summary>
+    public Stream CourseCatalogStream { get; set; } = null!;
+
+    /// <summary>
+    /// Имя файла с реестром курсов
+    /// </summary>
+    public string CourseCatalogFileName { get; set; } = string.Empty;
 
     /// <summary>
     /// Метод аналиа

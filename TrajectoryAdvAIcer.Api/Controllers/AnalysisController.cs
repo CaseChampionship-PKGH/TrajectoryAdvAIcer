@@ -1,11 +1,10 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using TrajectoryAdvAIcer.Analysis.Contracts.Enums;
-using TrajectoryAdvAIcer.Analysis.Contracts.Models;
 using TrajectoryAdvAIcer.Api.Models;
 using TrajectoryAdvAIcer.Parsing.Contracts.Exceptions;
 using TrajectoryAdvAIcer.Services.Contracts.Interfaces;
 using TrajectoryAdvAIcer.Services.Contracts.Models;
-using Microsoft.AspNetCore.Mvc;
 
 namespace TrajectoryAdvAIcer.Api.Controllers;
 
@@ -33,27 +32,30 @@ public class AnalysisController : ControllerBase
     /// </summary>
     [HttpPost("run")]
     public async Task<IActionResult> RunAnalysis(
-        IFormFile userAnswers,
+        IFormFile learningHistory,
+        IFormFile courseCatalog,
         [FromQuery] AnalysisMethod analysisMethod = AnalysisMethod.RussianAiAgent)
     {
-        if (userAnswers == null || userAnswers.Length == 0)
+        if (learningHistory == null || courseCatalog.Length == 0)
         {
             return BadRequest("Файл с ответами тестируемых обязателен.");
         }
 
         var context = new PipelineContext
         {
-            UserAnswersStream = userAnswers.OpenReadStream(),
-            UserAnswersFileName = userAnswers.FileName,
+            LearningHistoryStream = learningHistory.OpenReadStream(),
+            LearningHistoryFileName = learningHistory.FileName,
+            CourseCatalogStream = courseCatalog.OpenReadStream(),
+            CourseCatalogFileName = courseCatalog.FileName,
             AnalysisMethod = analysisMethod
         };
 
         try
         {
             var result = await pipeline.RunAsync(context);
-            var mappedResult = mapper.Map<AnalysisResultApiModel>(result.AnalysisResult);
-            mappedResult.Errors = result.Errors;
-            return Ok(mappedResult);
+            //var mappedResult = mapper.Map<AnalysisResultApiModel>(result.AnalysisResult);
+            //mappedResult.Errors = result.Errors;
+            return Ok(result);
         }
         catch (ParsingException ex)
         {
@@ -71,28 +73,14 @@ public class AnalysisController : ControllerBase
     [HttpPost("export/excel")]
     public async Task<IActionResult> ExportToExcel([FromBody] AnalysisResultApiModel analysisResultModel)
     {
-        var domainResult = mapper.Map<AnalysisResult>(analysisResultModel);
-        var fileBytes = await pipeline.ExportStatsExcel(domainResult);
-        var fileName = $"{domainResult.ProgramInfo?.Period + " " ?? "report"}{domainResult.ProgramInfo?.Title ?? string.Empty}.xlsx";
-        HttpContext.Response.Headers["X-Filename"] = Uri.EscapeDataString(fileName);
-        return File(fileBytes,
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            fileName);
-    }
-
-    /// <summary>
-    /// Экспорт отчёта в Word (.docx)
-    /// </summary>
-    [HttpPost("export/word")]
-    public async Task<IActionResult> ExportToWord([FromBody] AnalysisResultApiModel analysisResultModel)
-    {
-        var domainResult = mapper.Map<AnalysisResult>(analysisResultModel);
-        var fileBytes = await pipeline.ExportReportWord(domainResult);
-        var fileName = $"{domainResult.ProgramInfo?.Period + " " ?? "report"}{domainResult.ProgramInfo?.Title ?? string.Empty}.docx";
-        HttpContext.Response.Headers["X-Filename"] = Uri.EscapeDataString(fileName);
-        return File(fileBytes,
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            fileName);
+        //var domainResult = mapper.Map<AnalysisResult>(analysisResultModel);
+        //var fileBytes = await pipeline.ExportStatsExcel(domainResult);
+        //var fileName = $"{domainResult.ProgramInfo?.Period + " " ?? "report"}{domainResult.ProgramInfo?.Title ?? string.Empty}.xlsx";
+        //HttpContext.Response.Headers["X-Filename"] = Uri.EscapeDataString(fileName);
+        //return File(fileBytes,
+        //    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        //    fileName);
+        return Ok();
     }
 
     /// <summary>

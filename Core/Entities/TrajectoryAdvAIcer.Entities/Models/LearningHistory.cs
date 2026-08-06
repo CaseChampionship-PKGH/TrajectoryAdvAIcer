@@ -1,7 +1,7 @@
 ﻿namespace TrajectoryAdvAIcer.Entities.Models;
 
 /// <summary>
-/// История прохождения курсов всеми сотрудниками
+/// История обучения всеми сотрудниками
 /// </summary>
 public class LearningHistory
 {

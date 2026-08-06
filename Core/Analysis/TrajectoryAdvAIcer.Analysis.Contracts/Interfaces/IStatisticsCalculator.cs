@@ -11,10 +11,10 @@ public interface IStatisticsCalculator
     /// <summary>
     /// Посчитать данные анекеты
     /// </summary>
-    SurveyStatistics Calculate(Survey parsedData);
+    SurveyStatistics Calculate(LearningHistory parsedData);
 
     /// <summary>
     /// Посчитать данные одного вопроса
     /// </summary>
-    QuestionStatistics? CalculateForQuestion(SurveyQuestion? question, IEnumerable<SurveyResponse> responses);
+    QuestionStatistics? CalculateForQuestion(LearningHistory? question, IEnumerable<LearningHistory> responses);
 }

@@ -12,5 +12,5 @@ public interface ICriterionAggregator
     /// <summary>
     /// Выделить вопросы по критериям
     /// </summary>
-    AggregatedCriteriaData Aggregate(Survey parsedResult, SurveyStatistics statistics);
+    AggregatedCriteriaData Aggregate(LearningHistory parsedResult, SurveyStatistics statistics);
 }

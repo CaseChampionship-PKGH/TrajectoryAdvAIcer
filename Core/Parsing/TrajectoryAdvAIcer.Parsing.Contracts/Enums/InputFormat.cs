@@ -19,4 +19,9 @@ public enum InputFormat
     /// Excel
     /// </summary>
     Excel,
+
+    /// <summary>
+    /// Архив (.zip, .rar)
+    /// </summary>
+    Archive,
 }

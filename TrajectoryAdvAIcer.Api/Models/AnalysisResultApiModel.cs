@@ -12,7 +12,7 @@ public class AnalysisResultApiModel
     /// <summary>
     /// Метаданные программы полученные из SurveyParseResult
     /// </summary>
-    public ProgramInfo ProgramInfo { get; set; } = null!;
+    public LearningHistory ProgramInfo { get; set; } = null!;
 
     /// <summary>
     /// Результат анализа с генерацией итогового примечания для каждого критерия программы

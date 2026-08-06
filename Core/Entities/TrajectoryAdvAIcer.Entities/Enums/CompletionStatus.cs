@@ -3,9 +3,6 @@
 /// <summary>
 /// Процесс обучения
 /// </summary>
-/// <remarks>
-/// не bool потому что может быть в скоре "в процессе"
-/// </remarks>
 public enum CompletionStatus
 {
     /// <summary>
@@ -16,5 +13,10 @@ public enum CompletionStatus
     /// <summary>
     /// Не пройден
     /// </summary>
-    NotPassed
+    NotPassed,
+
+    /// <summary>
+    /// В процессе (на будущее)
+    /// </summary>
+    InProgress
 }

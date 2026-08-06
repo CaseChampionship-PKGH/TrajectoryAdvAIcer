@@ -10,7 +10,7 @@ public record QuestionWithAnswers
     /// <summary>
     /// Вопрос
     /// </summary>
-    public SurveyQuestion Question { get; set; } = null!;
+    public LearningHistory Question { get; set; } = null!;
 
     /// <summary>
     /// Ответы

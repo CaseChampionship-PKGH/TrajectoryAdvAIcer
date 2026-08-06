@@ -11,6 +11,8 @@ public class FormatDetector : IFormatDetector
 {
     private readonly static byte[] jsonStartBytes = { 0x5B };  // '['
     private readonly static byte[] jsonStartBytes2 = { 0x7B }; // '{'
+    private readonly static byte[] zipSignature = { 0x50, 0x4B, 0x03, 0x04 }; // PK..
+    private readonly static byte[] gZipSignature = { 0x1F, 0x8B }; // GZip
 
     private readonly static HashSet<string> csvExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -25,6 +27,11 @@ public class FormatDetector : IFormatDetector
     private readonly static HashSet<string> excelExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
         ".xlsx", ".xlsm", ".xls"
+    };
+
+    private readonly static HashSet<string> archiveExtensions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".zip", ".gz", ".tar", ".7z"
     };
 
     /// <summary>
@@ -59,6 +66,11 @@ public class FormatDetector : IFormatDetector
             return InputFormat.Excel;
         }
 
+        if (archiveExtensions.Contains(extension))
+        {
+            return InputFormat.Archive;
+        }
+
         if (content is { Length: > 0 })
         {
             content.Position = 0;
@@ -67,6 +79,11 @@ public class FormatDetector : IFormatDetector
             if (IsJsonContent(signature))
             {
                 return InputFormat.Json;
+            }
+
+            if (IsArchiveContent(signature))
+            {
+                return InputFormat.Archive;
             }
 
             if (IsLikelyCsvContent(signature))
@@ -158,6 +175,36 @@ public class FormatDetector : IFormatDetector
         // UTF-16 BE BOM: FE FF
         if (signature.Length >= 3 &&
             signature[0] == 0xFE && signature[1] == 0xFF)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Проверяет, является ли содержимое архивом.
+    /// </summary>
+    private static bool IsArchiveContent(byte[] signature)
+    {
+        if (signature.Length < 4)
+        {
+            return false;
+        }
+
+        // ZIP (PK..)
+        if (signature[0] == zipSignature[0] &&
+            signature[1] == zipSignature[1] &&
+            signature[2] == zipSignature[2] &&
+            signature[3] == zipSignature[3])
+        {
+            return true;
+        }
+
+        // GZip (1F 8B)
+        if (signature.Length >= 2 &&
+            signature[0] == gZipSignature[0] &&
+            signature[1] == gZipSignature[1])
         {
             return true;
         }

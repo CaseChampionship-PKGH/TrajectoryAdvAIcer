@@ -17,9 +17,4 @@ public interface IPipelineService
     /// Экспортировать статистику в Excel
     /// </summary>
     Task<byte[]> ExportStatsExcel(AnalysisResult analysisResult);
-
-    /// <summary>
-    /// Экспортировать отчёт в Word
-    /// </summary>
-    Task<byte[]> ExportReportWord(AnalysisResult analysisResult);
 }

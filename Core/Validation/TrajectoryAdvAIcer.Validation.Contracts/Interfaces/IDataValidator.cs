@@ -11,5 +11,5 @@ public interface IDataValidator
     /// <summary>
     /// Валидировать результаты анектирования
     /// </summary>
-    ValidationResult Validate(Survey results);
+    ValidationResult Validate(LearningHistory results);
 }
