@@ -4,6 +4,7 @@ using TrajectoryAdvAIcer.Parsing.Contracts.Enums;
 using TrajectoryAdvAIcer.Parsing.Contracts.Interfaces;
 using TrajectoryAdvAIcer.Services.Contracts.Interfaces;
 using TrajectoryAdvAIcer.Services.Contracts.Models;
+using TrajectoryAdvAIcer.Validation.Contracts.Interfaces;
 
 namespace TrajectoryAdvAIcer.Services;
 
@@ -14,7 +15,7 @@ public class TrajectoryAnalysisPipeline : IPipelineService
 {
     private readonly IFormatDetector formatDetector;
     private readonly IParserFactory parserFactory;
-    //private readonly IDataValidator dataValidator;
+    private readonly IDataValidator dataValidator;
     //private readonly IStatisticsCalculator statisticsCalculator;
     //private readonly ICriterionAggregator criterionAggregator;
     //private readonly ISurveyCriteriaAnalysisAgent surveyCriteriaAnalysisAgent;
@@ -24,8 +25,8 @@ public class TrajectoryAnalysisPipeline : IPipelineService
     /// Инициализирует новый экземпляр <see cref="TrajectoryAnalysisPipeline"/>
     /// </summary>
     public TrajectoryAnalysisPipeline(IFormatDetector formatDetector,
-        IParserFactory parserFactory)
-    //IDataValidator dataValidator,
+        IParserFactory parserFactory,
+        IDataValidator dataValidator)
     //IStatisticsCalculator statisticsCalculator,
     //ICriterionAggregator criterionAggregator,
     //ISurveyCriteriaAnalysisAgent surveyCriteriaAnalysisAgent,
@@ -33,7 +34,7 @@ public class TrajectoryAnalysisPipeline : IPipelineService
     {
         this.formatDetector = formatDetector;
         this.parserFactory = parserFactory;
-        //this.dataValidator = dataValidator;
+        this.dataValidator = dataValidator;
         //this.statisticsCalculator = statisticsCalculator;
         //this.criterionAggregator = criterionAggregator;
         //this.surveyCriteriaAnalysisAgent = surveyCriteriaAnalysisAgent;
@@ -52,7 +53,7 @@ public class TrajectoryAnalysisPipeline : IPipelineService
 
         var courseCatalog = await courseCatalogParser.ParseAsync<CourseCatalog>(context.CourseCatalogStream);
 
-        //var validationResult = dataValidator.Validate(surveyParseResult);
+        var validationResult = dataValidator.Validate(learningHistory, courseCatalog);
 
         //var statistics = statisticsCalculator.Calculate(validationResult.ValidatedResults);
         //var aggregationResult = criterionAggregator.Aggregate(validationResult.ValidatedResults, statistics);
@@ -88,10 +89,9 @@ public class TrajectoryAnalysisPipeline : IPipelineService
 
         return new PipelineResult()
         {
-            LearningHistory = learningHistory,
+            LearningHistory = validationResult.ValidatedLearningHistory,
             CourseCatalog = courseCatalog,
-            Errors = [],
-            //Errors = validationResult.Warnings.ToList(),
+            Errors = validationResult.Warnings.ToList(),
         };
     }
 

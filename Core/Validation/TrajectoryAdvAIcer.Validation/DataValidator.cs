@@ -9,123 +9,63 @@ namespace TrajectoryAdvAIcer.Validation;
 /// </summary>
 public class DataValidator : IDataValidator
 {
-    ValidationResult IDataValidator.Validate(LearningHistory parsedData)
+    ValidationResult IDataValidator.Validate(LearningHistory parsedLearningHistory, CourseCatalog parsedCourseCatalog)
     {
-        //var warnings = new List<string>();
+        var warnings = new List<string>();
+        var validRecords = new List<LearningRecord>();
+        var missingCoursesReported = new HashSet<string>();
 
-        //var cleanedResponses = new List<LearningHistory>();
+        var employeeNames = parsedLearningHistory.Employees.ToDictionary(e => e.Id, e => e.FullName);
 
-        //foreach (var response in parsedData.Responses)
-        //{
-        //    var cleanedAnswers = new List<LearningHistory>();
+        foreach (var record in parsedLearningHistory.Records)
+        {
+            if (string.IsNullOrWhiteSpace(record.EmployeeId))
+            {
+                warnings.Add($"Запись с пустым EmployeeId удалена. Курс: {record.CourseTitle ?? record.CourseId}");
+                continue;
+            }
+            if (string.IsNullOrWhiteSpace(record.CourseId))
+            {
+                warnings.Add($"Запись с пустым CourseId удалена. Сотрудник: {record.EmployeeId}");
+                continue;
+            }
+            if (!parsedCourseCatalog.Courses.Any(c => c.Id == record.CourseId))
+            {
+                if (missingCoursesReported.Add(record.CourseId))
+                {
+                    warnings.Add($"Курс \"{record.CourseTitle ?? record.CourseId}\" отсутствует в справочнике, записи сохранены, но требуют проверки.");
+                }
+            }
+            validRecords.Add(record);
+        }
 
-        //    foreach (var answer in response.Answers)
-        //    {
-        //        var question = parsedData.Questions.FirstOrDefault(q => q.QuestionId == answer.QuestionId);
-        //        if (question == null)
-        //        {
-        //            warnings.Add($"Ответ с ID вопроса {answer.QuestionId} не найден в справочнике.");
-        //            continue;
-        //        }
+        var uniqueRecords = validRecords
+            .GroupBy(r => (r.EmployeeId, r.CourseId))
+            .Select(g =>
+            {
+                if (g.Count() > 1)
+                {
+                    var first = g.First();
+                    var employeeName = employeeNames.TryGetValue(first.EmployeeId, out var name) ? name : first.EmployeeId;
+                    warnings.Add($"Найдены дубликаты для сотрудника {employeeName}, курс \"{first.CourseTitle ?? first.CourseId}\". Оставлена последняя запись.");
+                }
+                return g.Last();
+            })
+            .ToList();
 
-        //        if (answer.TextValue != null && AnswerQuality.IsPotentialInjection(answer.TextValue))
-        //        {
-        //            warnings.Add($"Потенциальный Prompt Injection: '{answer.TextValue}' ответ проигнорен.");
-        //            continue;
-        //        }
+        var validEmployeeIds = uniqueRecords.Select(r => r.EmployeeId).Distinct().ToHashSet();
+        var validEmployees = parsedLearningHistory.Employees.Where(e => validEmployeeIds.Contains(e.Id)).ToList();
 
-        //        switch (question.Type)
-        //        {
-        //            case QuestionType.Numeric:
-        //                if (answer.NumericValue.HasValue)
-        //                {
-        //                    if (answer.NumericValue < 1 || answer.NumericValue > 10)
-        //                    {
-        //                        warnings.Add($"Оценка {answer.NumericValue} для вопроса '{question.QuestionText}' вне диапазона 1-10. Ответ будет исключён.");
-        //                        continue;
-        //                    }
-        //                    cleanedAnswers.Add(answer);
-        //                }
-        //                else
-        //                {
-        //                    warnings.Add($"Пустая числовая оценка для вопроса '{question.QuestionText}'.");
-        //                }
-        //                break;
+        var cleanedHistory = new LearningHistory
+        {
+            Employees = validEmployees,
+            Records = uniqueRecords
+        };
 
-        //            case QuestionType.Binary:
-        //                var binVal = answer.BinaryValue;
-        //                if (string.IsNullOrWhiteSpace(binVal))
-        //                {
-        //                    warnings.Add($"Пустой бинарный ответ для вопроса '{question.QuestionText}'.");
-        //                    continue;
-        //                }
-        //                if (!IsValidBinary(binVal))
-        //                {
-        //                    if (AnswerQuality.IsNonInformative(binVal))
-        //                    {
-        //                        warnings.Add($"Бинарный ответ '{binVal}' для вопроса '{question.QuestionText}' интерпретирован как пустой.");
-        //                        continue;
-        //                    }
-        //                    warnings.Add($"Неожиданное значение '{binVal}' для бинарного вопроса '{question.QuestionText}'. Ответ исключён.");
-        //                    continue;
-        //                }
-        //                cleanedAnswers.Add(answer);
-        //                break;
-
-        //            case QuestionType.OpenText:
-        //                if (AnswerQuality.IsNonInformativeForQuestion(question.QuestionText, answer.TextValue))
-        //                {
-        //                    continue;
-        //                }
-        //                cleanedAnswers.Add(answer);
-        //                break;
-        //        }
-        //    }
-
-        //    if (cleanedAnswers.Count > 0)
-        //    {
-        //        cleanedResponses.Add(new SurveyResponse
-        //        {
-        //            RespondentId = response.RespondentId,
-        //            Position = response.Position,
-        //            Answers = cleanedAnswers
-        //        });
-        //    }
-        //    else
-        //    {
-        //        warnings.Add($"Анкета респондента {response.RespondentId} полностью пуста после фильтрации.");
-        //    }
-        //}
-
-        //var usedQuestionIds = cleanedResponses
-        //    .SelectMany(r => r.Answers.Select(a => a.QuestionId))
-        //    .Distinct()
-        //    .ToHashSet();
-
-        //var cleanedQuestions = parsedData.Questions
-        //    .Where(q => usedQuestionIds.Contains(q.QuestionId))
-        //    .ToList();
-
-        //var result = new Survey()
-        //{
-        //    ProgramInfo = parsedData.ProgramInfo,
-        //    Questions = cleanedQuestions,
-        //    Responses = cleanedResponses
-        //};
-
-        //return new ValidationResult
-        //{
-        //    ValidatedResults = result,
-        //    Success = result.Questions.Count > 0,
-        //    Warnings = warnings
-        //};
-
-        return new ValidationResult();
-    }
-
-    private static bool IsValidBinary(string value)
-    {
-        return value.Equals("да", StringComparison.OrdinalIgnoreCase) ||
-               value.Equals("нет", StringComparison.OrdinalIgnoreCase);
+        return new ValidationResult
+        {
+            ValidatedLearningHistory = cleanedHistory,
+            Warnings = warnings
+        };
     }
 }

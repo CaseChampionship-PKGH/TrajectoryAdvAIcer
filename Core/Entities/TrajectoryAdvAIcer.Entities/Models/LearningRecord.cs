@@ -18,6 +18,14 @@ public class LearningRecord
     public string CourseId { get; set; } = string.Empty;
 
     /// <summary>
+    /// Название курса
+    /// </summary>
+    /// <remarks>
+    /// Нужен в случае определения неизвестного курса
+    /// </remarks>
+    public string? CourseTitle { get; set; }
+
+    /// <summary>
     /// Тип прохождения (как проходил)
     /// </summary>
     public CourseType Type { get; set; }

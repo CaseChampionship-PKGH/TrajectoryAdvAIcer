@@ -18,7 +18,7 @@ public record ValidationResult
     public bool Success { get; set; }
 
     /// <summary>
-    /// Валидные данные, готовые к анализу
+    /// Валидные данные истории обучения, готовые к анализу
     /// </summary>
-    public LearningHistory ValidatedResults { get; set; } = null!;
+    public LearningHistory ValidatedLearningHistory { get; set; } = null!;
 }
