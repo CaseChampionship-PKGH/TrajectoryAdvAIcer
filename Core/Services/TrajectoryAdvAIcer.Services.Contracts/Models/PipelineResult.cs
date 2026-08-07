@@ -21,4 +21,9 @@ public record PipelineResult
     /// Реестр курсов
     /// </summary>
     public CourseCatalog CourseCatalog { get; set; } = null!;
+
+    /// <summary>
+    /// Список рекомендуемых курсов
+    /// </summary>
+    public Dictionary<string, Course> RecommendedCourses { get; set; } = null!;
 }

@@ -1,5 +1,4 @@
 ﻿using TrajectoryAdvAIcer.Analysis.Contracts.Models;
-using TrajectoryAdvAIcer.Analysis.Contracts.Models.Aggregation;
 using TrajectoryAdvAIcer.Entities.Models;
 
 namespace TrajectoryAdvAIcer.Api.Models;
@@ -18,11 +17,6 @@ public class AnalysisResultApiModel
     /// Результат анализа с генерацией итогового примечания для каждого критерия программы
     /// </summary>
     public List<CriterionAnalysis> AllCriteriaAnalysisData { get; set; } = null!;
-
-    /// <summary>
-    /// Предпочтительная форма обучения
-    /// </summary>
-    public LearningFormatDistribution FormatDistribution { get; set; } = null!;
 
     /// <summary>
     /// Траектория изменения программы по результатам итогового опроса слушателей

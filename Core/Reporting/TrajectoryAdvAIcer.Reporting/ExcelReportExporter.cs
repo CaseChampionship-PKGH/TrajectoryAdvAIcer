@@ -91,13 +91,15 @@ public class ExcelReportExporter : IReportExporter
 
     private static double? GetAverage(List<CriterionAnalysis> criteria, string criterionName)
     {
-        var c = criteria.FirstOrDefault(x => x.CriterionData.CriterionName == criterionName);
-        return c?.CriterionData.Statistics?.Average;
+        //var c = criteria.FirstOrDefault(x => x.CriterionData.CriterionName == criterionName);
+        //return c?.CriterionData.Statistics?.Average;
+        return 0.0;
     }
 
     private static double? GetEngagementPercent(List<CriterionAnalysis> criteria)
     {
-        var c = criteria.FirstOrDefault(x => x.CriterionData.CriterionName == SurveyAnalysisConstants.Engagement);
-        return c?.CriterionData.Statistics?.NoPercent;
+        //var c = criteria.FirstOrDefault(x => x.CriterionData.CriterionName == SurveyAnalysisConstants.Engagement);
+        //return c?.CriterionData.Statistics?.NoPercent;
+        return 0.0;
     }
 }

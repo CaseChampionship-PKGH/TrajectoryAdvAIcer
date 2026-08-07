@@ -1,4 +1,5 @@
-﻿using TrajectoryAdvAIcer.Analysis.Contracts.Models;
+﻿using TrajectoryAdvAIcer.Analysis.Contracts.Interfaces;
+using TrajectoryAdvAIcer.Analysis.Contracts.Models;
 using TrajectoryAdvAIcer.Entities.Models;
 using TrajectoryAdvAIcer.Parsing.Contracts.Enums;
 using TrajectoryAdvAIcer.Parsing.Contracts.Interfaces;
@@ -16,9 +17,11 @@ public class TrajectoryAnalysisPipeline : IPipelineService
     private readonly IFormatDetector formatDetector;
     private readonly IParserFactory parserFactory;
     private readonly IDataValidator dataValidator;
-    //private readonly IStatisticsCalculator statisticsCalculator;
-    //private readonly ICriterionAggregator criterionAggregator;
+    private readonly ICollaborativeFilteringService collaborativeFilteringService;
+    private readonly ICourseCandidateSelector courseCandidateSelector;
+    private readonly ITopCourseSelector topCourseSelector;
     //private readonly ISurveyCriteriaAnalysisAgent surveyCriteriaAnalysisAgent;
+
     //private readonly IReportExporterFactory reportExporterFactory;
 
     /// <summary>
@@ -26,17 +29,19 @@ public class TrajectoryAnalysisPipeline : IPipelineService
     /// </summary>
     public TrajectoryAnalysisPipeline(IFormatDetector formatDetector,
         IParserFactory parserFactory,
-        IDataValidator dataValidator)
-    //IStatisticsCalculator statisticsCalculator,
-    //ICriterionAggregator criterionAggregator,
+        IDataValidator dataValidator,
+        ICollaborativeFilteringService collaborativeFilteringService,
+        ICourseCandidateSelector courseCandidateSelector,
+        ITopCourseSelector topCourseSelector)
     //ISurveyCriteriaAnalysisAgent surveyCriteriaAnalysisAgent,
     //IReportExporterFactory reportExporterFactory)
     {
         this.formatDetector = formatDetector;
         this.parserFactory = parserFactory;
         this.dataValidator = dataValidator;
-        //this.statisticsCalculator = statisticsCalculator;
-        //this.criterionAggregator = criterionAggregator;
+        this.collaborativeFilteringService = collaborativeFilteringService;
+        this.courseCandidateSelector = courseCandidateSelector;
+        this.topCourseSelector = topCourseSelector;
         //this.surveyCriteriaAnalysisAgent = surveyCriteriaAnalysisAgent;
         //this.reportExporterFactory = reportExporterFactory;
     }
@@ -46,17 +51,27 @@ public class TrajectoryAnalysisPipeline : IPipelineService
         var learningHistortyFormat = formatDetector.DetectFormat(context.LearningHistoryFileName, context.LearningHistoryStream);
         var learningHistortyParser = parserFactory.GetParser(learningHistortyFormat, ParsingTarget.LearningHistory);
 
-        var learningHistory = await learningHistortyParser.ParseAsync<LearningHistory>(context.LearningHistoryStream);
+        var parsedLearningHistory = await learningHistortyParser.ParseAsync<LearningHistory>(context.LearningHistoryStream);
 
         var courseCatalogFormat = formatDetector.DetectFormat(context.CourseCatalogFileName, context.CourseCatalogStream);
         var courseCatalogParser = parserFactory.GetParser(courseCatalogFormat, ParsingTarget.CourseCatalog);
 
         var courseCatalog = await courseCatalogParser.ParseAsync<CourseCatalog>(context.CourseCatalogStream);
 
-        var validationResult = dataValidator.Validate(learningHistory, courseCatalog);
+        var validationResult = dataValidator.Validate(parsedLearningHistory, courseCatalog);
 
-        //var statistics = statisticsCalculator.Calculate(validationResult.ValidatedResults);
-        //var aggregationResult = criterionAggregator.Aggregate(validationResult.ValidatedResults, statistics);
+        var history = validationResult.ValidatedLearningHistory;
+
+        var recommenedCourses = new Dictionary<string, Course>();
+
+        foreach (var target in validationResult.ValidatedLearningHistory.Employees)
+        {
+            var popularityMap = collaborativeFilteringService.BuildPopularityMapForEmployee(validationResult.ValidatedLearningHistory, target.Id);
+            var similarCount = history.Employees.Count(e => e.Position == target.Position && e.IOGV == target.IOGV) - 1;
+            var candidates = courseCandidateSelector.SelectCandidates(history, target.Id);
+            var recommendedCourseIds = topCourseSelector.SelectTopCourses(candidates, similarCount);
+            recommenedCourses[target.FullName] = courseCatalog.Courses.FirstOrDefault(x => recommendedCourseIds.Contains(x.Id)) ?? new Course();
+        }
 
         //var criterionAnalysisList = new List<CriterionAnalysis>();
 
@@ -92,6 +107,7 @@ public class TrajectoryAnalysisPipeline : IPipelineService
             LearningHistory = validationResult.ValidatedLearningHistory,
             CourseCatalog = courseCatalog,
             Errors = validationResult.Warnings.ToList(),
+            RecommendedCourses = recommenedCourses,
         };
     }
 
