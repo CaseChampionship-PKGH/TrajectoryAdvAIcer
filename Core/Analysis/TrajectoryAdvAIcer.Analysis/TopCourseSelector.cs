@@ -1,5 +1,5 @@
 ﻿using TrajectoryAdvAIcer.Analysis.Contracts.Interfaces;
-using TrajectoryAdvAIcer.Analysis.Contracts.Models.Aggregation;
+using TrajectoryAdvAIcer.Analysis.Contracts.Models;
 
 namespace TrajectoryAdvAIcer.Analysis;
 
