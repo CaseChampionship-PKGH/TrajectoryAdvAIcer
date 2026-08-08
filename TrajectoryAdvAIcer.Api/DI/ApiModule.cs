@@ -2,8 +2,6 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using TrajectoryAdvAIcer.Agent;
 using TrajectoryAdvAIcer.Agent.Contracts.Interfaces;
-using TrajectoryAdvAIcer.Agent.GigaChat;
-using TrajectoryAdvAIcer.Agent.OpenAI;
 using TrajectoryAdvAIcer.Analysis;
 using TrajectoryAdvAIcer.Api.AutoMappers;
 using TrajectoryAdvAIcer.Common.Mvc.Extensions;
@@ -47,6 +45,8 @@ public class ApiModule : Module
         services.RegisterMultipleInterfacesAssignableTo<IDataParser, CourseCatalogJsonParser>(ServiceLifetime.Singleton);
         services.RegisterMultipleInterfacesAssignableTo<IDataParser, CourseCatalogArchiveParser>(ServiceLifetime.Singleton);
 
+        services.RegisterMultipleInterfacesAssignableTo<IDataParser, AgentResponseJsonParser>(ServiceLifetime.Singleton);
+
         services.AddHttpClient("RussianLLMAccessToken", client =>
         {
             client.BaseAddress = new Uri(config["RussianLLM:TokenUrl"]!);
@@ -85,13 +85,13 @@ public class ApiModule : Module
             }
         });
 
-        services.RegisterMultipleInterfacesAssignableTo<ILlmClient, GigaChatLlmClient>(ServiceLifetime.Singleton);
+        services.RegisterMultipleInterfacesAssignableTo<ILlmClient, MockLlmClient>(ServiceLifetime.Singleton);
 
         services.AddHttpClient("ForeignLLM", client =>
         {
             client.BaseAddress = new Uri(config["ForeignLLM:BaseUrl"]!);
         });
-        services.RegisterMultipleInterfacesAssignableTo<ILlmClient, OpenAiCompatibleLlmClient>(ServiceLifetime.Singleton);
+        services.RegisterMultipleInterfacesAssignableTo<ILlmClient, MockLlmClient>(ServiceLifetime.Singleton);
         services.RegisterAsImplementedInterfaces<ParserFactory>(ServiceLifetime.Singleton);
         services.RegisterAsImplementedInterfaces<FormatDetector>(ServiceLifetime.Singleton);
         services.RegisterAsImplementedInterfaces<DataValidator>(ServiceLifetime.Singleton);
@@ -100,7 +100,7 @@ public class ApiModule : Module
         services.RegisterAsImplementedInterfaces<TopCourseSelector>(ServiceLifetime.Singleton);
         services.RegisterAsImplementedInterfaces<DefaultPromptProvider>(ServiceLifetime.Singleton);
         services.RegisterAsImplementedInterfaces<LlmFactory>(ServiceLifetime.Singleton);
-        services.RegisterAsImplementedInterfaces<LlmSurveyAnalysisAgent>(ServiceLifetime.Singleton);
+        services.RegisterAsImplementedInterfaces<LlmTrajectoryAdvicerAgent>(ServiceLifetime.Singleton);
         services.RegisterMultipleInterfacesAssignableTo<IReportExporter, ExcelReportExporter>(ServiceLifetime.Singleton);
         services.RegisterMultipleInterfacesAssignableTo<IReportExporter, WordReportExporter>(ServiceLifetime.Singleton);
         services.RegisterAsImplementedInterfaces<TrajectoryAnalysisPipeline>(ServiceLifetime.Singleton);

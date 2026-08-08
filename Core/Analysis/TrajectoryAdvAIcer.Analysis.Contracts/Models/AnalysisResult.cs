@@ -1,14 +1,12 @@
-﻿using TrajectoryAdvAIcer.Entities.Models;
-
-namespace TrajectoryAdvAIcer.Analysis.Contracts.Models;
+﻿namespace TrajectoryAdvAIcer.Analysis.Contracts.Models;
 
 /// <summary>
-/// Результат анализа с генерацией итогового примечания для критерия программы
+/// Результат анализа с генерацией траекторий обучений всех сотрудников
 /// </summary>
 public class AnalysisResult
 {
     /// <summary>
-    /// Метаданные программы полученные из SurveyParseResult
+    /// Список сотрудников и их траекторий
     /// </summary>
-    public LearningHistory LearningHistory { get; set; } = null!;
+    public required List<EmployeeTrajectoryAdvice> TrajectoryAdvices { get; set; }
 }

@@ -1,5 +1,10 @@
-﻿using TrajectoryAdvAIcer.Analysis.Contracts.Interfaces;
+﻿using TrajectoryAdvAIcer.Agent.Contracts.Enums;
+using TrajectoryAdvAIcer.Agent.Contracts.Interfaces;
+using TrajectoryAdvAIcer.Analysis.Contracts.Enums;
+using TrajectoryAdvAIcer.Analysis.Contracts.Interfaces;
 using TrajectoryAdvAIcer.Analysis.Contracts.Models;
+using TrajectoryAdvAIcer.Analysis.Contracts.Models.Aggregation;
+using TrajectoryAdvAIcer.Entities.Enums;
 using TrajectoryAdvAIcer.Entities.Models;
 using TrajectoryAdvAIcer.Parsing.Contracts.Enums;
 using TrajectoryAdvAIcer.Parsing.Contracts.Interfaces;
@@ -20,7 +25,7 @@ public class TrajectoryAnalysisPipeline : IPipelineService
     private readonly ICollaborativeFilteringService collaborativeFilteringService;
     private readonly ICourseCandidateSelector courseCandidateSelector;
     private readonly ITopCourseSelector topCourseSelector;
-    //private readonly ISurveyCriteriaAnalysisAgent surveyCriteriaAnalysisAgent;
+    private readonly ITrajectoryAdvicerAgent trajectoryAdvicerAnalysisAgent;
 
     //private readonly IReportExporterFactory reportExporterFactory;
 
@@ -32,8 +37,8 @@ public class TrajectoryAnalysisPipeline : IPipelineService
         IDataValidator dataValidator,
         ICollaborativeFilteringService collaborativeFilteringService,
         ICourseCandidateSelector courseCandidateSelector,
-        ITopCourseSelector topCourseSelector)
-    //ISurveyCriteriaAnalysisAgent surveyCriteriaAnalysisAgent,
+        ITopCourseSelector topCourseSelector,
+        ITrajectoryAdvicerAgent trajectoryAdvicerAnalysisAgent)
     //IReportExporterFactory reportExporterFactory)
     {
         this.formatDetector = formatDetector;
@@ -42,7 +47,7 @@ public class TrajectoryAnalysisPipeline : IPipelineService
         this.collaborativeFilteringService = collaborativeFilteringService;
         this.courseCandidateSelector = courseCandidateSelector;
         this.topCourseSelector = topCourseSelector;
-        //this.surveyCriteriaAnalysisAgent = surveyCriteriaAnalysisAgent;
+        this.trajectoryAdvicerAnalysisAgent = trajectoryAdvicerAnalysisAgent;
         //this.reportExporterFactory = reportExporterFactory;
     }
 
@@ -62,52 +67,60 @@ public class TrajectoryAnalysisPipeline : IPipelineService
 
         var history = validationResult.ValidatedLearningHistory;
 
-        var recommenedCourses = new Dictionary<string, Course>();
+        var results = new List<EmployeeTrajectoryAdvice>();
 
-        foreach (var target in validationResult.ValidatedLearningHistory.Employees)
+        foreach (var employee in history.Employees)
         {
-            var popularityMap = collaborativeFilteringService.BuildPopularityMapForEmployee(validationResult.ValidatedLearningHistory, target.Id);
-            var similarCount = history.Employees.Count(e => e.Position == target.Position && e.IOGV == target.IOGV) - 1;
-            var candidates = courseCandidateSelector.SelectCandidates(history, target.Id);
-            var recommendedCourseIds = topCourseSelector.SelectTopCourses(candidates, similarCount);
-            recommenedCourses[target.FullName] = courseCatalog.Courses.FirstOrDefault(x => recommendedCourseIds.Contains(x.Id)) ?? new Course();
+            var popularityMap = collaborativeFilteringService.BuildPopularityMapForEmployee(history, employee.Id);
+            var similarCount = history.Employees.Count(e => e.Position == employee.Position && e.IOGV == employee.IOGV) - 1;
+            var candidates = courseCandidateSelector.SelectCandidates(history, employee.Id);
+            var recommendedIds = topCourseSelector.SelectTopCourses(candidates, similarCount);
+
+            var recommendedCourses = recommendedIds
+                .Select(id => courseCatalog.Courses.FirstOrDefault(c => c.Id == id))
+                .Where(c => c != null)
+                .Select(c => new RecommendedCourse
+                {
+                    Course = c!,
+                    Popularity = popularityMap.GetValueOrDefault(c!.Id, 0),
+                    TotalSimilarEmployees = similarCount
+                })
+                .ToList();
+
+            var passedCourseIds = history.Records
+                .Where(r => r.EmployeeId == employee.Id && r.Status == CompletionStatus.Passed)
+                .Select(r => r.CourseId)
+                .ToHashSet();
+
+            var passedCourses = courseCatalog.Courses
+                .Where(c => passedCourseIds.Contains(c.Id))
+                .Select(c => c.Title)
+                .ToList();
+
+            var trajectory = await trajectoryAdvicerAnalysisAgent.GenerateTrajectoryForEmployeeAsync(employee,
+                passedCourses,
+                recommendedCourses,
+                context.AnalysisMethod == AnalysisMethod.RussianAiAgent
+                ? LlmVariant.Russian
+                : LlmVariant.Foreign);
+
+            results.Add(new EmployeeTrajectoryAdvice
+            {
+                Profile = employee,
+                PassedCourseNames = passedCourses,
+                Trajectory = trajectory.Trajectory
+            });
         }
 
-        //var criterionAnalysisList = new List<CriterionAnalysis>();
-
-        //foreach (var promptData in aggregationResult.AllCriteriaData)
-        //{
-        //    var note = await surveyCriteriaAnalysisAgent.AnalyzeAndGenerateCriterionNoteAsync(promptData, context.AnalysisMethod == AnalysisMethod.RussianAiAgent
-        //            ? LlmVariant.Russian
-        //            : LlmVariant.Foreign);
-
-        //    criterionAnalysisList.Add(new CriterionAnalysis
-        //    {
-        //        CriterionData = promptData,
-        //        Note = note
-        //    });
-        //}
-
-        //var trajectory = await surveyCriteriaAnalysisAgent.AnalyzeTrajectoryAsync(aggregationResult,
-        //    criterionAnalysisList.Select(x => x.Note ?? string.Empty).ToList(),
-        //    context.AnalysisMethod == AnalysisMethod.RussianAiAgent
-        //            ? LlmVariant.Russian
-        //            : LlmVariant.Foreign);
-
-        //var result = new AnalysisResult()
-        //{
-        //    ProgramInfo = surveyParseResult.ProgramInfo,
-        //    AllCriteriaAnalysisData = criterionAnalysisList,
-        //    FormatDistribution = aggregationResult.FormatDistribution,
-        //    Trajectory = trajectory
-        //};
+        var result = new AnalysisResult()
+        {
+            TrajectoryAdvices = results
+        };
 
         return new PipelineResult()
         {
-            LearningHistory = validationResult.ValidatedLearningHistory,
-            CourseCatalog = courseCatalog,
+            AnalysisResult = result,
             Errors = validationResult.Warnings.ToList(),
-            RecommendedCourses = recommenedCourses,
         };
     }
 
