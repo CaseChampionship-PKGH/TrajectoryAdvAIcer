@@ -37,9 +37,14 @@ public class AnalysisController : ControllerBase
         IFormFile courseCatalog,
         [FromQuery] AnalysisMethod analysisMethod = AnalysisMethod.RussianAiAgent)
     {
-        if (learningHistory == null || courseCatalog.Length == 0)
+        if (learningHistory == null || learningHistory.Length == 0)
         {
-            return BadRequest("Файл с ответами тестируемых обязателен.");
+            return BadRequest("Файл с историей обучений обязателен.");
+        }
+
+        if (courseCatalog == null || courseCatalog.Length == 0)
+        {
+            return BadRequest("Файл с реестром курсов обязателен.");
         }
 
         var context = new PipelineContext
