@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using TrajectoryAdvAIcer.Analysis.Contracts.Enums;
+using TrajectoryAdvAIcer.Analysis.Contracts.Models;
 using TrajectoryAdvAIcer.Api.Models;
 using TrajectoryAdvAIcer.Parsing.Contracts.Exceptions;
 using TrajectoryAdvAIcer.Services.Contracts.Interfaces;
@@ -55,7 +56,7 @@ public class AnalysisController : ControllerBase
             var result = await pipeline.RunAsync(context);
             var mappedResult = mapper.Map<AnalysisResultApiModel>(result.AnalysisResult);
             mappedResult.Errors = result.Errors;
-            return Ok(result);
+            return Ok(mappedResult);
         }
         catch (ParsingException ex)
         {
@@ -73,14 +74,13 @@ public class AnalysisController : ControllerBase
     [HttpPost("export/excel")]
     public async Task<IActionResult> ExportToExcel([FromBody] AnalysisResultApiModel analysisResultModel)
     {
-        //var domainResult = mapper.Map<AnalysisResult>(analysisResultModel);
-        //var fileBytes = await pipeline.ExportStatsExcel(domainResult);
-        //var fileName = $"{domainResult.ProgramInfo?.Period + " " ?? "report"}{domainResult.ProgramInfo?.Title ?? string.Empty}.xlsx";
-        //HttpContext.Response.Headers["X-Filename"] = Uri.EscapeDataString(fileName);
-        //return File(fileBytes,
-        //    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        //    fileName);
-        return Ok();
+        var domainResult = mapper.Map<AnalysisResult>(analysisResultModel);
+        var fileBytes = await pipeline.ExportStatsExcel(domainResult);
+        var fileName = $"Рекомендации_траекторий_обучения_{DateTime.Now:yyyy-MM-dd}.xlsx";
+        HttpContext.Response.Headers["X-Filename"] = Uri.EscapeDataString(fileName);
+        return File(fileBytes,
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            fileName);
     }
 
     /// <summary>

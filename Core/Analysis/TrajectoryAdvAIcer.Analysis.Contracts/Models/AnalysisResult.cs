@@ -8,5 +8,5 @@ public class AnalysisResult
     /// <summary>
     /// Список сотрудников и их траекторий
     /// </summary>
-    public required List<EmployeeTrajectoryAdvice> TrajectoryAdvices { get; set; }
+    public List<EmployeeTrajectoryAdvice> TrajectoryAdvices { get; set; } = [];
 }

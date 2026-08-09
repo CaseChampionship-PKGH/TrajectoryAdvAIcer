@@ -10,7 +10,7 @@ public class AnalysisResultApiModel
     /// <summary>
     /// Список сотрудников с их историей и траекторией обучения
     /// </summary>
-    public required List<EmployeeTrajectoryAdvice> TrajectoryAdvices { get; set; }
+    public List<EmployeeTrajectoryAdvice> TrajectoryAdvices { get; set; } = [];
 
     /// <summary>
     /// Список возникших в процессе валидации ошибок
