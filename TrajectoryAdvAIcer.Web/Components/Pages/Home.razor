@@ -243,8 +243,8 @@
             {
                 "russian" => "RussianAiAgent",
 				"foreign" => "ForeignAiAgent",
-                "local" => "LocalAiAgent",
-                _ => "ForeignAiAgent"
+				"local" => "LocalAiAgent",
+				_ => "RussianAiAgent"
             };
 
 			var requestUri = $"api/analysis/run?analysisMethod={variant}";

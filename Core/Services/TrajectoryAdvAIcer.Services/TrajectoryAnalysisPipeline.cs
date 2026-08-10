@@ -99,12 +99,18 @@ public class TrajectoryAnalysisPipeline : IPipelineService
                 .Select(c => c.Title)
                 .ToList();
 
+            var llmVariant = context.AnalysisMethod switch
+            {
+                AnalysisMethod.RussianAiAgent => LlmVariant.Russian,
+                AnalysisMethod.ForeignAiAgent => LlmVariant.Foreign,
+                AnalysisMethod.LocalAiAgent => LlmVariant.Local,
+                _ => LlmVariant.Russian,
+            };
+
             var trajectory = await trajectoryAdvicerAnalysisAgent.GenerateTrajectoryForEmployeeAsync(employee,
                 passedCourses,
                 recommendedCourses,
-                context.AnalysisMethod == AnalysisMethod.RussianAiAgent
-                ? LlmVariant.Russian
-                : LlmVariant.Foreign);
+                llmVariant);
 
             results.Add(new EmployeeTrajectoryAdvice
             {

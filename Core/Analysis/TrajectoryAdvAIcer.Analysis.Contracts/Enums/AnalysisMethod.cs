@@ -14,4 +14,9 @@ public enum AnalysisMethod
     /// Зарубежный ИИ-агент
     /// </summary>
     ForeignAiAgent,
+
+    /// <summary>
+    /// Локальный ИИ-агент
+    /// </summary>
+    LocalAiAgent,
 }

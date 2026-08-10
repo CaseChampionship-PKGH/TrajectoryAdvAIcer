@@ -5,34 +5,34 @@ using Microsoft.Extensions.Configuration;
 using TrajectoryAdvAIcer.Agent.Contracts.Enums;
 using TrajectoryAdvAIcer.Agent.Contracts.Interfaces;
 using TrajectoryAdvAIcer.Agent.Contracts.Models;
-using TrajectoryAdvAIcer.Agent.OpenAI.Models;
+using TrajectoryAdvAIcer.Agent.Ollama.Models;
 
-namespace TrajectoryAdvAIcer.Agent.OpenAI;
+namespace TrajectoryAdvAIcer.Agent.Ollama;
 
-/// <inheritdoc cref="ILlmClient"/>, поддерживающий протокол OpenAI
-public class OpenAiCompatibleLlmClient : ILlmClient
+/// <inheritdoc cref="ILlmClient"/>, на основе Ollama
+public class OllamaLlmClient : ILlmClient
 {
     private readonly HttpClient httpClient;
     private readonly string apiKey;
     private readonly string requestUri;
     private readonly string model;
 
-    LlmVariant ILlmClient.LlmVariant => LlmVariant.Foreign;
+    LlmVariant ILlmClient.LlmVariant => LlmVariant.Local;
 
     /// <summary>
-    /// Инициализирует новый экземпляр <see cref="OpenAiCompatibleLlmClient "/>
+    /// Инициализирует новый экземпляр <see cref="OllamaLlmClient"/>
     /// </summary>
-    public OpenAiCompatibleLlmClient(IHttpClientFactory httpClientFactory, IConfiguration config)
+    public OllamaLlmClient(IHttpClientFactory httpClientFactory, IConfiguration config)
     {
-        httpClient = httpClientFactory.CreateClient("ForeignLLM");
-        apiKey = config.GetRequiredSection("ForeignLLM").GetValue<string>("ApiKey")!;
-        requestUri = config.GetRequiredSection("ForeignLLM").GetValue<string>("RequestUri")!;
-        model = config.GetRequiredSection("ForeignLLM").GetValue<string>("Model")!;
+        httpClient = httpClientFactory.CreateClient("LocalLLM");
+        apiKey = config.GetRequiredSection("LocalLLM").GetValue<string>("ApiKey")!;
+        requestUri = config.GetRequiredSection("LocalLLM").GetValue<string>("RequestUri")!;
+        model = config.GetRequiredSection("LocalLLM").GetValue<string>("Model")!;
     }
 
     async Task<LlmResponse> ILlmClient.SendRequestAsync(LlmRequest llmRequest, string targetTest)
     {
-        var request = new OpenAICompatibleRequest
+        var request = new OllamaCompatibleRequest
         {
             Model = model,
             Messages =
@@ -55,12 +55,12 @@ public class OpenAiCompatibleLlmClient : ILlmClient
         response.EnsureSuccessStatusCode();
 
         var body = await response.Content.ReadAsStringAsync();
-        var result = JsonSerializer.Deserialize<OpenAICompatibleResponse>(body);
+        var result = JsonSerializer.Deserialize<OllamaCompatibleResponse>(body);
 
         return new LlmResponse
         {
             RawResponse = result?.Choices?.FirstOrDefault()?.Message?.Content
-               ?? "ОШИБКА: Пустой ответ от внешнего LLM"
+               ?? "ОШИБКА: Пустой ответ от локальной LLM"
         };
     }
 }

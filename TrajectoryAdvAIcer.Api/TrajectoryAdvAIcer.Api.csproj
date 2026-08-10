@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Common\TrajectoryAdvAIcer.Common.Mvc\TrajectoryAdvAIcer.Common.Mvc.csproj" />
     <ProjectReference Include="..\Core\Agents\TrajectoryAdvAIcer.Agent.GigaChat\TrajectoryAdvAIcer.Agent.GigaChat.csproj" />
+    <ProjectReference Include="..\Core\Agents\TrajectoryAdvAIcer.Agent.Ollama\TrajectoryAdvAIcer.Agent.Ollama.csproj" />
     <ProjectReference Include="..\Core\Agents\TrajectoryAdvAIcer.Agent.OpenAI\TrajectoryAdvAIcer.Agent.OpenAI.csproj" />
     <ProjectReference Include="..\Core\Agents\TrajectoryAdvAIcer.Agent.YandexGPT\TrajectoryAdvAIcer.Agent.YandexGPT.csproj" />
     <ProjectReference Include="..\Core\Agents\TrajectoryAdvAIcer.Agent\TrajectoryAdvAIcer.Agent.csproj" />
