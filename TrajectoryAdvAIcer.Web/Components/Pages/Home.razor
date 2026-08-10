@@ -61,6 +61,14 @@
                             <span>Запустить анализ</span>
                         }
                     </button>
+
+					@if (showCsvWarning)
+					{
+						<div class="alert alert-warning" role="alert">
+							⚠️ Вы загрузили два CSV-файла. Из-за особенностей браузерной передачи возможна нестабильная работа.
+							Рекомендуем пересохранить файлы в формате Excel (.xlsx) для надёжности.
+						</div>
+					}
                 </div>
             </div>
 
@@ -82,16 +90,18 @@
                 </div>
             }
 
-            @if (warnings != null && warnings.Count > 0)
-            {
-                @foreach (var warning in warnings)
-                {
-                    <div class="alert alert-warning d-flex align-items-center" role="alert">
-                        <span>@warning</span>
-                        <button type="button" class="btn-close ms-auto" @onclick="() => warnings.Remove(warning)"></button>
-                    </div>
-                }
-            }
+			@if (warnings != null && warnings.Count > 0)
+			{
+				<div class="alert alert-warning" style="max-height: 200px; overflow-y: auto;">
+					<ul class="mb-0">
+						@foreach (var warning in warnings)
+						{
+							<li>@warning</li>
+						}
+					</ul>
+					<button type="button" class="btn-close position-absolute top-0 end-0 m-2" @onclick="() => warnings.Clear()"></button>
+				</div>
+			}
 
             @if (analysisResult != null && analysisResult.TrajectoryAdvices.Count > 0)
             {
@@ -120,26 +130,40 @@
                                 <h6 class="card-subtitle mb-3 text-muted">@emp.Profile.Position</h6>
                                 <p class="card-text"><strong>ИОГВ:</strong> @emp.Profile.IOGV</p>
 
-                                <h6>Пройденные курсы</h6>
-                                <ul class="list-group list-group-flush mb-4">
-                                    @foreach (var course in emp.PassedCourseNames)
-                                    {
-                                        <li class="list-group-item">@course</li>
-                                    }
-                                </ul>
+								<h6>Пройденные курсы</h6>
+								@if (emp.PassedCourseNames != null && emp.PassedCourseNames.Count > 0)
+								{
+									<ul class="list-group list-group-flush mb-4">
+										@foreach (var course in emp.PassedCourseNames)
+										{
+											<li class="list-group-item">@course</li>
+										}
+									</ul>
+								}
+								else
+								{
+									<p class="text-muted">Нет пройденных курсов.</p>
+								}
 
-                                <h6>Рекомендованная траектория</h6>
-                                <div class="list-group">
-                                    @foreach (var rec in emp.Trajectory)
-                                    {
-                                        <div class="list-group-item list-group-item-action">
-                                            <div class="d-flex w-100 justify-content-between">
-                                                <h6 class="mb-1">@rec.CourseTitle</h6>
-                                            </div>
-                                            <p class="mb-1">@rec.Rationale</p>
-                                        </div>
-                                    }
-                                </div>
+								<h6>Рекомендованная траектория</h6>
+								@if (emp.Trajectory != null && emp.Trajectory.Count > 0)
+								{
+									<div class="list-group">
+										@foreach (var rec in emp.Trajectory)
+										{
+											<div class="list-group-item list-group-item-action">
+												<div class="d-flex w-100 justify-content-between">
+													<h6 class="mb-1">@rec.CourseTitle</h6>
+												</div>
+												<p class="mb-1">@rec.Rationale</p>
+											</div>
+										}
+									</div>
+								}
+								else
+								{
+									<p class="text-muted">Рекомендации не сформированы.</p>
+								}
                             </div>
                         </div>
                     </div>
@@ -170,6 +194,12 @@
 
     private void HandleHistoryFile(InputFileChangeEventArgs e) => historyFile = e.File;
     private void HandleCatalogFile(InputFileChangeEventArgs e) => catalogFile = e.File;
+
+	private bool showCsvWarning =>
+		historyFile != null &&
+		catalogFile != null &&
+		Path.GetExtension(historyFile.Name).Equals(".csv", StringComparison.OrdinalIgnoreCase) &&
+		Path.GetExtension(catalogFile.Name).Equals(".csv", StringComparison.OrdinalIgnoreCase);
 
     private void PreviousEmployee()
     {
@@ -217,7 +247,7 @@
                 _ => "ForeignAiAgent"
             };
 
-			var requestUri = $"/api/analysis/run?analysisMethod={variant}";
+			var requestUri = $"api/analysis/run?analysisMethod={variant}";
 			var response = await Http.PostAsync(requestUri, formData);
 
             if (response.IsSuccessStatusCode)

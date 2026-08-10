@@ -47,6 +47,14 @@ public class AnalysisController : ControllerBase
             return BadRequest("Файл с реестром курсов обязателен.");
         }
 
+        using var historyStream = new MemoryStream();
+        await learningHistory.CopyToAsync(historyStream);
+        historyStream.Position = 0;
+
+        using var catalogStream = new MemoryStream();
+        await courseCatalog.CopyToAsync(catalogStream);
+        catalogStream.Position = 0;
+
         var context = new PipelineContext
         {
             LearningHistoryStream = learningHistory.OpenReadStream(),
