@@ -3,7 +3,10 @@
 @inject IJSRuntime JS
 @rendermode InteractiveServer
 @using TrajectoryAdvAIcer.Api.Models
+@using TrajectoryAdvAIcer.Services.Contracts.Models
+@using TrajectoryAdvAIcer.Analysis.Contracts.Models
 @using System.Text.Json
+@using System.Text.Json.Serialization
 @using System.Text
 
 <PageTitle>TrajectoryAdvAIcer – Рекомендации обучения</PageTitle>
@@ -49,6 +52,11 @@
                             <option value="local">Локальная модель</option>
                         </select>
                     </div>
+
+					<div class="mb-3 form-check">
+						<input type="checkbox" class="form-check-input" id="streamCheck" @bind="useStreaming">
+						<label class="form-check-label" for="streamCheck">Потоковый режим (по сотрудникам)</label>
+					</div>
 
                     <button class="btn btn-lg w-100" style="background-color: #33B47C; color: white;" @onclick="StartAnalysis" disabled="@isLoading">
                         @if (isLoading)
@@ -167,14 +175,14 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card-footer d-flex gap-3">
-                        <button class="btn btn-success" @onclick="DownloadExcel">
-                            Скачать Excel
-                        </button>
-                        <button class="btn btn-outline-success" @onclick="DownloadJson">
-                            Скачать JSON
-                        </button>
-                    </div>
+					<div class="card-footer d-flex gap-3">
+						<button class="btn btn-success" @onclick="DownloadExcel" disabled="@(!analysisCompleted)">
+							Скачать Excel
+						</button>
+						<button class="btn btn-outline-success" @onclick="DownloadJson" disabled="@(!analysisCompleted)">
+							Скачать JSON
+						</button>
+					</div>
                 </div>
             }
         </div>
@@ -182,6 +190,13 @@
 </div>
 
 @code {
+	private JsonSerializerOptions jsonOptions = new JsonSerializerOptions
+	{
+		PropertyNameCaseInsensitive = true,
+		Converters = { new JsonStringEnumConverter() },
+		Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+	};
+
     private IBrowserFile? historyFile;
     private IBrowserFile? catalogFile;
     private string selectedVariant = "foreign";
@@ -191,6 +206,8 @@
     private AnalysisResultApiModel? analysisResult;
     private string? reportDataJson;
     private int currentEmployeeIndex = 0;
+	private bool useStreaming = true;
+	private bool analysisCompleted = false;
 
     private void HandleHistoryFile(InputFileChangeEventArgs e) => historyFile = e.File;
     private void HandleCatalogFile(InputFileChangeEventArgs e) => catalogFile = e.File;
@@ -212,72 +229,142 @@
             currentEmployeeIndex++;
     }
 
-    private async Task StartAnalysis()
-    {
-        if (historyFile == null || catalogFile == null)
-        {
-            errorMessage = "Необходимо загрузить оба файла.";
-            return;
-        }
+	private async Task StartAnalysis()
+	{
+		if (historyFile == null || catalogFile == null)
+		{
+			errorMessage = "Необходимо загрузить оба файла.";
+			return;
+		}
 
-        isLoading = true;
-        errorMessage = null;
-        analysisResult = null;
-        warnings = null;
-        currentEmployeeIndex = 0;
-        StateHasChanged();
+		isLoading = true;
+		errorMessage = null;
+		analysisResult = null;
+		warnings = null;
+		analysisCompleted = false;
+		currentEmployeeIndex = 0;
+		StateHasChanged();
 
-        try
-        {
-            using var formData = new MultipartFormDataContent();
+		try
+		{
+			using var formData = new MultipartFormDataContent();
 
-            var historyContent = new StreamContent(historyFile.OpenReadStream(maxAllowedSize: 100_000_000));
-            historyContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(historyFile.ContentType ?? "application/octet-stream");
-            formData.Add(historyContent, "learningHistory", historyFile.Name);
+			var historyContent = new StreamContent(historyFile.OpenReadStream(maxAllowedSize: 100_000_000));
+			historyContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(historyFile.ContentType ?? "application/octet-stream");
+			formData.Add(historyContent, "learningHistory", historyFile.Name);
 
-            var catalogContent = new StreamContent(catalogFile.OpenReadStream(maxAllowedSize: 100_000_000));
-            catalogContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(catalogFile.ContentType ?? "application/octet-stream");
-            formData.Add(catalogContent, "courseCatalog", catalogFile.Name);
+			var catalogContent = new StreamContent(catalogFile.OpenReadStream(maxAllowedSize: 100_000_000));
+			catalogContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(catalogFile.ContentType ?? "application/octet-stream");
+			formData.Add(catalogContent, "courseCatalog", catalogFile.Name);
 
-            var variant = selectedVariant switch
-            {
-                "russian" => "RussianAiAgent",
+			var variant = selectedVariant switch
+			{
+				"russian" => "RussianAiAgent",
 				"foreign" => "ForeignAiAgent",
 				"local" => "LocalAiAgent",
 				_ => "RussianAiAgent"
-            };
+			};
 
-			var requestUri = $"api/analysis/run?analysisMethod={variant}";
-			var response = await Http.PostAsync(requestUri, formData);
+			if (useStreaming)
+			{
+				var requestUri = $"/api/analysis/run-stream?analysisMethod={variant}";
+				using var request = new HttpRequestMessage(HttpMethod.Post, requestUri)
+				{
+					Content = formData
+				};
+				var response = await Http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
-            if (response.IsSuccessStatusCode)
-            {
-                reportDataJson = await response.Content.ReadAsStringAsync();
-                analysisResult = JsonSerializer.Deserialize<AnalysisResultApiModel>(
-                    reportDataJson,
-                    new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true,
-                        Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() }
-                    });
-                warnings = analysisResult?.Errors;
-            }
-            else
-            {
-                var errorJson = await response.Content.ReadAsStringAsync();
-                errorMessage = $"Ошибка сервера: {response.StatusCode}. {errorJson}";
-            }
-        }
-        catch (Exception ex)
-        {
-            errorMessage = $"Ошибка подключения: {ex.Message}";
-        }
-        finally
-        {
-            isLoading = false;
-            StateHasChanged();
-        }
-    }
+				if (!response.IsSuccessStatusCode)
+				{
+					var errorBody = await response.Content.ReadAsStringAsync();
+					errorMessage = $"Ошибка сервера: {response.StatusCode}. {errorBody}";
+					return;
+				}
+
+				using var stream = await response.Content.ReadAsStreamAsync();
+				var reader = new StreamReader(stream);
+
+				var advices = new List<EmployeeTrajectoryAdvice>();
+				analysisResult = new AnalysisResultApiModel { TrajectoryAdvices = advices };
+				warnings = new List<string>();
+				analysisCompleted = false;
+
+				try
+				{
+					while (!reader.EndOfStream)
+					{
+						var line = await reader.ReadLineAsync();
+						if (string.IsNullOrWhiteSpace(line)) continue;
+
+						var eventObj = JsonSerializer.Deserialize<PipelineEvent>(line, jsonOptions);
+						if (eventObj == null) continue;
+
+						switch (eventObj.Type)
+						{
+							case "errors":
+								warnings = eventObj.Errors ?? new List<string>();
+								await InvokeAsync(StateHasChanged);
+								break;
+							case "employee":
+								if (eventObj.EmployeeAdvice != null)
+									advices.Add(eventObj.EmployeeAdvice);
+								await InvokeAsync(StateHasChanged);
+								await Task.Yield();
+								break;
+							case "complete":
+								analysisCompleted = true;
+								reportDataJson = JsonSerializer.Serialize(analysisResult, jsonOptions);
+								await InvokeAsync(StateHasChanged);
+								break;
+						}
+					}
+				}
+				catch (Exception ex)
+				{
+					errorMessage = $"Ошибка чтения потока: {ex.Message}";
+				}
+				finally
+				{
+					reader.Close(); // закрываем вручную
+					isLoading = false;
+					await InvokeAsync(StateHasChanged);
+				}
+			}
+			else
+			{
+				var requestUri = $"/api/analysis/run?analysisMethod={variant}";
+				var response = await Http.PostAsync(requestUri, formData);
+
+				if (response.IsSuccessStatusCode)
+				{
+					var json = await response.Content.ReadAsStringAsync();
+					reportDataJson = json;
+					analysisResult = JsonSerializer.Deserialize<AnalysisResultApiModel>(json, new JsonSerializerOptions
+					{
+						PropertyNameCaseInsensitive = true,
+						Converters = { new JsonStringEnumConverter() }
+					});
+					warnings = analysisResult?.Errors ?? new List<string>();
+					analysisCompleted = true;
+				}
+				else
+				{
+					var errorJson = await response.Content.ReadAsStringAsync();
+					errorMessage = $"Ошибка сервера: {response.StatusCode}. {errorJson}";
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			errorMessage = $"Ошибка подключения: {ex.Message}";
+		}
+		finally
+		{
+			isLoading = false;
+			StateHasChanged();
+		}
+	}
+
 
     private async Task DownloadExcel()
     {

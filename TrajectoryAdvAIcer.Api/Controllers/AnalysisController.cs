@@ -1,4 +1,7 @@
+using System.Text;
+using System.Text.Json;
 using AutoMapper;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using TrajectoryAdvAIcer.Analysis.Contracts.Enums;
 using TrajectoryAdvAIcer.Analysis.Contracts.Models;
@@ -29,7 +32,7 @@ public class AnalysisController : ControllerBase
     }
 
     /// <summary>
-    /// Запуск анализа и получение структурированного отчёта
+    /// Запуск анализа и получение отчёта
     /// </summary>
     [HttpPost("run")]
     public async Task<IActionResult> RunAnalysis(
@@ -47,22 +50,7 @@ public class AnalysisController : ControllerBase
             return BadRequest("Файл с реестром курсов обязателен.");
         }
 
-        using var historyStream = new MemoryStream();
-        await learningHistory.CopyToAsync(historyStream);
-        historyStream.Position = 0;
-
-        using var catalogStream = new MemoryStream();
-        await courseCatalog.CopyToAsync(catalogStream);
-        catalogStream.Position = 0;
-
-        var context = new PipelineContext
-        {
-            LearningHistoryStream = learningHistory.OpenReadStream(),
-            LearningHistoryFileName = learningHistory.FileName,
-            CourseCatalogStream = courseCatalog.OpenReadStream(),
-            CourseCatalogFileName = courseCatalog.FileName,
-            AnalysisMethod = analysisMethod
-        };
+        var context = await BuildContext(learningHistory, courseCatalog, analysisMethod);
 
         try
         {
@@ -79,6 +67,65 @@ public class AnalysisController : ControllerBase
         {
             return StatusCode(500, new { error = "Внутренняя ошибка сервера.", detail = ex.Message });
         }
+    }
+
+    /// <summary>
+    /// Запуск анализа в виде потока и получение структурированного отчёта
+    /// </summary>
+    [HttpPost("run-stream")]
+    public async Task RunAnalysisStream(
+        IFormFile learningHistory,
+        IFormFile courseCatalog,
+        [FromQuery] AnalysisMethod analysisMethod = AnalysisMethod.ForeignAiAgent)
+    {
+        var context = await BuildContext(learningHistory, courseCatalog, analysisMethod);
+
+        Response.ContentType = "application/x-ndjson";
+        Response.Headers.Append("Cache-Control", "no-cache");
+        Response.Headers.Append("X-Content-Type-Options", "nosniff");
+        HttpContext.Features.Get<IHttpsCompressionFeature>()?.Mode = HttpsCompressionMode.DoNotCompress;
+        await Response.Body.FlushAsync();
+        await using var writer = new StreamWriter(Response.Body, Encoding.UTF8, leaveOpen: true);
+
+        await foreach (var pipelineEvent in pipeline.RunStreamAsync(context,
+            HttpContext.RequestAborted))
+        {
+            var json = JsonSerializer.Serialize(pipelineEvent);
+            await writer.WriteLineAsync(json);
+            await writer.FlushAsync();
+        }
+    }
+
+    private static async Task<PipelineContext> BuildContext(IFormFile learningHistory,
+        IFormFile courseCatalog,
+        AnalysisMethod analysisMethod)
+    {
+        if (learningHistory == null || learningHistory.Length == 0)
+        {
+            throw new BadHttpRequestException("Файл с историей обучений обязателен.");
+        }
+
+        if (courseCatalog == null || courseCatalog.Length == 0)
+        {
+            throw new BadHttpRequestException("Файл с реестром курсов обязателен.");
+        }
+
+        using var historyStream = new MemoryStream();
+        await learningHistory.CopyToAsync(historyStream);
+        historyStream.Position = 0;
+
+        using var catalogStream = new MemoryStream();
+        await courseCatalog.CopyToAsync(catalogStream);
+        catalogStream.Position = 0;
+
+        return new PipelineContext
+        {
+            LearningHistoryStream = learningHistory.OpenReadStream(),
+            LearningHistoryFileName = learningHistory.FileName,
+            CourseCatalogStream = courseCatalog.OpenReadStream(),
+            CourseCatalogFileName = courseCatalog.FileName,
+            AnalysisMethod = analysisMethod
+        };
     }
 
     /// <summary>

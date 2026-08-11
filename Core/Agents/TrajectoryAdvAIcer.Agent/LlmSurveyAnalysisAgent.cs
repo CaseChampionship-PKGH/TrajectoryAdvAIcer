@@ -32,7 +32,8 @@ public class LlmTrajectoryAdvicerAgent : ITrajectoryAdvicerAgent
     async Task<TrajectoryAnalysisResult> ITrajectoryAdvicerAgent.GenerateTrajectoryForEmployeeAsync(Employee profile,
         List<string> passedCourses,
         List<RecommendedCourse> recommendedCourses,
-        LlmVariant llmVariant)
+        LlmVariant llmVariant,
+        CancellationToken cancellationToken)
     {
         var prompt = promptProvider.BuildTrajectoryPrompt(profile, passedCourses, recommendedCourses);
         var llmClient = llmFactory.CreateLLmClient(llmVariant);

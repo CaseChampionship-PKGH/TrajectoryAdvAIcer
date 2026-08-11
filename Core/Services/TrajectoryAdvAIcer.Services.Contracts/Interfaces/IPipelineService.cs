@@ -9,12 +9,17 @@ namespace TrajectoryAdvAIcer.Services.Contracts.Interfaces;
 public interface IPipelineService
 {
     /// <summary>
-    /// Валидировать результаты теста
+    /// Запустить анализ траектории
     /// </summary>
-    Task<PipelineResult> RunAsync(PipelineContext context);
+    Task<PipelineResult> RunAsync(PipelineContext context, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Экспортировать статистику в Excel
+    /// Запустить анализ траектории поточно
+    /// </summary>
+    IAsyncEnumerable<PipelineEvent> RunStreamAsync(PipelineContext context, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Экспортировать отчёт в Excel
     /// </summary>
     Task<byte[]> ExportStatsExcel(AnalysisResult analysisResult);
 }
