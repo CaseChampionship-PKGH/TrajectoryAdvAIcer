@@ -2,7 +2,9 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using TrajectoryAdvAIcer.Agent;
 using TrajectoryAdvAIcer.Agent.Contracts.Interfaces;
+using TrajectoryAdvAIcer.Agent.GigaChat;
 using TrajectoryAdvAIcer.Agent.Ollama;
+using TrajectoryAdvAIcer.Agent.OpenAI;
 using TrajectoryAdvAIcer.Analysis;
 using TrajectoryAdvAIcer.Api.AutoMappers;
 using TrajectoryAdvAIcer.Common.Mvc.Extensions;
@@ -86,13 +88,13 @@ public class ApiModule : Module
             }
         });
 
-        services.RegisterMultipleInterfacesAssignableTo<ILlmClient, MockLlmClient>(ServiceLifetime.Singleton);
+        services.RegisterMultipleInterfacesAssignableTo<ILlmClient, GigaChatLlmClient>(ServiceLifetime.Singleton);
 
         services.AddHttpClient("ForeignLLM", client =>
         {
             client.BaseAddress = new Uri(config["ForeignLLM:BaseUrl"]!);
         });
-        services.RegisterMultipleInterfacesAssignableTo<ILlmClient, MockLlmClient>(ServiceLifetime.Singleton);
+        services.RegisterMultipleInterfacesAssignableTo<ILlmClient, OpenAiCompatibleLlmClient>(ServiceLifetime.Singleton);
 
         services.AddHttpClient("LocalLLM", client =>
         {

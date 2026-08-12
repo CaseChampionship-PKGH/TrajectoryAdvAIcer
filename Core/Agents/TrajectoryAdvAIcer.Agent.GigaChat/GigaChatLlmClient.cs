@@ -92,7 +92,14 @@ public class GigaChatLlmClient : ILlmClient
         tokenRequest.Content = new StringContent($"scope={scope}", Encoding.UTF8, "application/x-www-form-urlencoded");
 
         var tokenResponse = await tokenHttpClient.SendAsync(tokenRequest);
-        tokenResponse.EnsureSuccessStatusCode();
+        try
+        {
+            tokenResponse.EnsureSuccessStatusCode();
+        }
+        catch (HttpRequestException)
+        {
+            throw new InvalidOperationException("Не удалось получить access_token от GigaChat");
+        }
 
         var tokenBody = await tokenResponse.Content.ReadAsStringAsync();
         var tokenData = JsonSerializer.Deserialize<GigaChatTokenResponse>(tokenBody);

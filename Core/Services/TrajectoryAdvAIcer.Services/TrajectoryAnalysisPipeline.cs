@@ -61,9 +61,7 @@ public class TrajectoryAnalysisPipeline : IPipelineService
         var employeesToProcess = history.Employees;
         var results = new List<EmployeeTrajectoryAdvice>();
 
-        var testAmount = employeesToProcess.Take(10).ToList();
-
-        foreach (var employee in testAmount)
+        foreach (var employee in employeesToProcess)
         {
             cancellationToken.ThrowIfCancellationRequested();
             var advice = await ProcessSingleEmployeeAsync(employee, history, catalog, context.AnalysisMethod, cancellationToken);
@@ -89,7 +87,9 @@ public class TrajectoryAnalysisPipeline : IPipelineService
             Errors = warnings
         };
 
-        foreach (var employee in history.Employees)
+        var employeesToProcess = history.Employees;
+
+        foreach (var employee in employeesToProcess)
         {
             cancellationToken.ThrowIfCancellationRequested();
             var advice = await ProcessSingleEmployeeAsync(employee, history, catalog, context.AnalysisMethod, cancellationToken);
