@@ -1,4 +1,4 @@
-﻿namespace TrajectoryAdvAIcer.Analysis.Contracts.Models;
+﻿namespace TrajectoryAdvAIcer.Analysis.Contracts.Models.Aggregation;
 
 /// <summary>
 /// Данные по всем критериям

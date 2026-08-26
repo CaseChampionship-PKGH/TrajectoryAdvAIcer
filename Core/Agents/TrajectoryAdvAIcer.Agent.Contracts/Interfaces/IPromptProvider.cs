@@ -1,4 +1,5 @@
-﻿using TrajectoryAdvAIcer.Entities.Models;
+﻿using TrajectoryAdvAIcer.Analysis.Contracts.Models.Aggregation;
+using TrajectoryAdvAIcer.Entities.Models;
 
 namespace TrajectoryAdvAIcer.Agent.Contracts.Interfaces;
 
@@ -8,7 +9,14 @@ namespace TrajectoryAdvAIcer.Agent.Contracts.Interfaces;
 public interface IPromptProvider
 {
     /// <summary>
-    /// Формирует промпт для получения примечания по критерию
+    /// Формирует промпт для генерации индивидуальной траектории обучения.
     /// </summary>
-    string BuildCriterionNotePrompt(LearningHistory learningHistory, IEnumerable<string> recommendedIds, CourseCatalog courseCatalog);
+    /// <param name="profile">Профиль сотрудника (должность, ИОГВ).</param>
+    /// <param name="passedCourses">Пройденные сотрудником курсы (имена).</param>
+    /// <param name="recommendedCourses">Рекомендованные курсы с популярностью и описаниями.</param>
+    /// <returns>Текстовый промпт для LLM.</returns>
+    string BuildTrajectoryPrompt(
+        Employee profile,
+        List<string> passedCourses,
+        List<RecommendedCourse> recommendedCourses);
 }

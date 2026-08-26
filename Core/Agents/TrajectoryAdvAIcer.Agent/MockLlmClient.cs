@@ -18,20 +18,15 @@ public class MockLlmClient : ILlmClient
         if (targetTest == "trajectory")
         {
             mockResponse = @"```json
-                            {
-                                ""needForProgram"": ""потребность в дальнейшей реализации программы"",
-                                ""admissionCorrection"": ""нужна ли корректировка отбора слушателей"",
-                                ""programSupplement"": ""что нужно добавить в программу"",
-                                ""hoursChange"": ""нужно ли изменение количества часов"",
-                                ""formChange"": ""нужно ли изменение формы обучения"",
-                                ""excludedTopicsSummary"": ""обобщение предложений об исключении тем"",
-                                ""suggestedTopicsSummary"": ""обобщение предложений о добавлении тем""
-                            }
-                            ```";
-        }
-        else if (targetTest == "note")
-        {
-            mockResponse = "Рекомендуется пересмотреть формулировку вопроса и добавить пояснения в материал.";
+                {
+                    ""trajectory"": [
+                        {
+                            ""courseTitle"": ""Название курса"",
+                            ""rationale"": ""Обоснование рекомендации""
+                        }
+                    ]
+                }
+                ```";
         }
         else
         {

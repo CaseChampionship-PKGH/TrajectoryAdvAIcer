@@ -1,16 +1,16 @@
-﻿using TrajectoryAdvAIcer.Entities.Models;
+﻿using TrajectoryAdvAIcer.Analysis.Contracts.Models;
 
 namespace TrajectoryAdvAIcer.Api.Models;
 
 /// <summary>
-/// Api модель резульата анализа
+/// Api модель результата анализа
 /// </summary>
 public class AnalysisResultApiModel
 {
     /// <summary>
-    /// Метаданные программы полученные из SurveyParseResult
+    /// Список сотрудников с их историей и траекторией обучения
     /// </summary>
-    public LearningHistory ProgramInfo { get; set; } = null!;
+    public required List<EmployeeTrajectoryAdvice> TrajectoryAdvices { get; set; }
 
     /// <summary>
     /// Список возникших в процессе валидации ошибок
