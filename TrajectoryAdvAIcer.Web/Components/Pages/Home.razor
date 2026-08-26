@@ -3,437 +3,312 @@
 @inject IJSRuntime JS
 @rendermode InteractiveServer
 @using TrajectoryAdvAIcer.Api.Models
-@using System.Text.Json;
-@using TrajectoryAdvAIcer.Web.Models
-@using TrajectoryAdvAIcer.Services.Contracts.Constants
+@using System.Text.Json
+@using System.Text
 
-<PageTitle>Анализ анкет</PageTitle>
+<PageTitle>TrajectoryAdvAIcer – Рекомендации обучения</PageTitle>
 
 <div class="container mt-5 mb-5">
-	<div class="row justify-content-center">
-		<div class="col-lg-12 col-md-10">
-			<h1 class="display-5 mb-3">Анализ анкет</h1>
-			<p class="lead text-muted">Загрузите ответы и получите интеллектуальный отчёт с визулизации.</p>
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <h1 class="display-5 mb-3">Рекомендации траекторий обучения</h1>
+            <p class="lead text-muted">Загрузите историю обучения и справочник курсов, чтобы получить персонализированные траектории.</p>
 
-			<div class="card mb-4">
-				<div class="card-body p-4">
-					<h5 class="card-title fw-bold mb-3">Исходные данные</h5>
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body p-4">
+                    <h5 class="card-title fw-bold mb-3">Исходные данные</h5>
 
-					<div class="mb-3">
-						<label class="form-label fw-bold">
-							Файл с ответами слушателей <span class="text-danger">*</span>
-						</label>
-						<InputFile OnChange="HandleSurveyFile" class="form-control" accept=".xlsx,.csv" />
-						@if (surveyFile != null)
-						{
-							<small class="text-success mt-1 d-block">@surveyFile.Name</small>
-						}
-					</div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">
+                                История обучения <span class="text-danger">*</span>
+                            </label>
+                            <InputFile OnChange="HandleHistoryFile" class="form-control" accept=".xlsx,.csv,.zip,.json" />
+                            @if (historyFile != null)
+                            {
+                                <small class="text-success mt-1 d-block">@historyFile.Name</small>
+                            }
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">
+                                Справочник курсов <span class="text-danger">*</span>
+                            </label>
+							<InputFile OnChange="HandleCatalogFile" class="form-control" accept=".xlsx,.csv,.zip,.json" />
+                            @if (catalogFile != null)
+                            {
+                                <small class="text-success mt-1 d-block">@catalogFile.Name</small>
+                            }
+                        </div>
+                    </div>
 
-					<div class="mb-4">
-						<label class="form-label fw-bold">Вариант ИИ-агента</label>
-						<select @bind="selectedVariant" class="form-select">
-							<option value="russian">Российские нейросети</option>
-							<option value="foreign">Зарубежные нейросети</option>
-						</select>
-					</div>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Вариант ИИ-агента</label>
+                        <select @bind="selectedVariant" class="form-select">
+                            <option value="russian">Российские нейросети</option>
+                            <option value="foreign">Зарубежные нейросети</option>
+                            <option value="local">Локальная модель</option>
+                        </select>
+                    </div>
 
-					<button class="btn btn-warning btn-lg w-100" @onclick="StartAnalysis" disabled="@isLoading">
-						@if (isLoading)
-						{
-							<span class="spinner-border spinner-border-sm me-2" role="status"></span>
-							<span>Анализируем...</span>
-						}
-						else
-						{
-							<span>Запустить анализ</span>
-						}
-					</button>
-				</div>
-			</div>
+                    <button class="btn btn-lg w-100" style="background-color: #33B47C; color: white;" @onclick="StartAnalysis" disabled="@isLoading">
+                        @if (isLoading)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            <span>Анализируем...</span>
+                        }
+                        else
+                        {
+                            <span>Запустить анализ</span>
+                        }
+                    </button>
 
-			@if (isLoading)
-			{
-				<div class="text-center my-5">
-					<div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
-						<span class="visually-hidden">Загрузка...</span>
-					</div>
-					<p class="mt-3 text-muted">Идёт анализ... Пожалуйста, подождите.</p>
-				</div>
-			}
+					@if (showCsvWarning)
+					{
+						<div class="alert alert-warning" role="alert">
+							⚠️ Вы загрузили два CSV-файла. Из-за особенностей браузерной передачи возможна нестабильная работа.
+							Рекомендуем пересохранить файлы в формате Excel (.xlsx) для надёжности.
+						</div>
+					}
+                </div>
+            </div>
 
-			@if (!string.IsNullOrEmpty(errorMessage))
-			{
-				<div class="alert alert-danger d-flex align-items-center" role="alert">
-					<span>@errorMessage</span>
-					<button type="button" class="btn-close ms-auto" @onclick="() => errorMessage = string.Empty"></button>
-				</div>
-			}
+            @if (isLoading)
+            {
+                <div class="text-center my-5">
+                    <div class="spinner-border" style="width: 3rem; height: 3rem; color: #33B47C;" role="status">
+                        <span class="visually-hidden">Загрузка...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Идёт анализ... Пожалуйста, подождите.</p>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger d-flex align-items-center" role="alert">
+                    <span>@errorMessage</span>
+                    <button type="button" class="btn-close ms-auto" @onclick="() => errorMessage = string.Empty"></button>
+                </div>
+            }
 
 			@if (warnings != null && warnings.Count > 0)
 			{
-				@foreach (var warning in warnings)
-				{
-					<div class="alert alert-warning d-flex align-items-center" role="alert">
-						<span>@warning</span>
-						<button type="button" class="btn-close ms-auto" @onclick="() => warnings.Remove(warning)"></button>
-					</div>
-				}
-			}
-
-			@if (dashboardData != null)
-			{
-				<div class="card mt-4">
-					<div class="card-header bg-warning text-dark">
-						<h5>Результаты анализа</h5>
-					</div>
-					<div class="card-body">
-						<div class="row">
-							<div class="col-md-6 mb-4">
-								<canvas id="barChart"></canvas>
-							</div>
-							<div class="col-md-6 mb-4">
-								<canvas id="radarChart"></canvas>
-							</div>
-						</div>
-						<div class="row align-items-center">
-							<div class="mb-3">
-								<canvas id="distChart"></canvas>
-							</div>
-						</div>
-						<div class="row">
-							<div class="mb-4">
-								<h5 class="text-center">Корреляционная матрица (Тепловая карта)</h5>
-								<div style="overflow-x: auto;">
-									<table style="border-collapse: collapse; margin: auto;">
-										<tr>
-											<th></th>
-											@foreach (var label in dashboardData.CriteriaLabels)
-											{
-												<th style="padding: 5px; font-size: 12px; text-align: center;">@label</th>
-											}
-										</tr>
-										@for (int i = 0; i < dashboardData.HeatMapData.Length; i++)
-										{
-											<tr>
-												<th style="padding: 5px; font-size: 12px; text-align: right;">@dashboardData.CriteriaLabels[i]</th>
-												@for (int j = 0; j < dashboardData.HeatMapData[i].Length; j++)
-												{
-													var val = dashboardData.HeatMapData[i][j];
-													string bgColor = val > 0.7 ? "#4CAF50" : val > 0.3 ? "#FFC107" : "#F44336";
-													<td style="background-color: @bgColor; color: white; text-align: center; padding: 8px; font-weight: bold; border: 1px solid #ddd;">
-														@val.ToString("F2")
-													</td>
-												}
-											</tr>
-										}
-									</table>
-								</div>
-							</div>
-						</div>
-						
-					</div>
-					<div class="card-footer d-flex gap-3">
-						<button class="btn btn-success" @onclick="DownloadExcel">
-							Скачать Excel
-						</button>
-						<button class="btn btn-info" @onclick="DownloadWord">
-							Скачать Word
-						</button>
-						<button class="btn btn-warning" @onclick="DownloadDashboard">
-							Скачать Html dashboard
-						</button>
-					</div>
+				<div class="alert alert-warning" style="max-height: 200px; overflow-y: auto;">
+					<ul class="mb-0">
+						@foreach (var warning in warnings)
+						{
+							<li>@warning</li>
+						}
+					</ul>
+					<button type="button" class="btn-close position-absolute top-0 end-0 m-2" @onclick="() => warnings.Clear()"></button>
 				</div>
 			}
-		</div>
-	</div>
+
+            @if (analysisResult != null && analysisResult.TrajectoryAdvices.Count > 0)
+            {
+                <div class="card mt-4 shadow-sm">
+                    <div class="card-header text-white" style="background-color: #33B47C;">
+                        <h5 class="mb-0">Результаты анализа</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <button class="btn btn-outline-secondary" @onclick="PreviousEmployee" disabled="@(currentEmployeeIndex == 0)">
+                                ← Предыдущий сотрудник
+                            </button>
+                            <span class="fw-bold">@(currentEmployeeIndex + 1) / @analysisResult.TrajectoryAdvices.Count</span>
+                            <button class="btn btn-outline-secondary" @onclick="NextEmployee" disabled="@(currentEmployeeIndex >= analysisResult.TrajectoryAdvices.Count - 1)">
+                                Следующий сотрудник →
+                            </button>
+                        </div>
+
+                        @{
+                            var emp = analysisResult.TrajectoryAdvices[currentEmployeeIndex];
+                        }
+
+                        <div class="card border-success">
+                            <div class="card-body">
+                                <h4 class="card-title">@emp.Profile.FullName</h4>
+                                <h6 class="card-subtitle mb-3 text-muted">@emp.Profile.Position</h6>
+                                <p class="card-text"><strong>ИОГВ:</strong> @emp.Profile.IOGV</p>
+
+								<h6>Пройденные курсы</h6>
+								@if (emp.PassedCourseNames != null && emp.PassedCourseNames.Count > 0)
+								{
+									<ul class="list-group list-group-flush mb-4">
+										@foreach (var course in emp.PassedCourseNames)
+										{
+											<li class="list-group-item">@course</li>
+										}
+									</ul>
+								}
+								else
+								{
+									<p class="text-muted">Нет пройденных курсов.</p>
+								}
+
+								<h6>Рекомендованная траектория</h6>
+								@if (emp.Trajectory != null && emp.Trajectory.Count > 0)
+								{
+									<div class="list-group">
+										@foreach (var rec in emp.Trajectory)
+										{
+											<div class="list-group-item list-group-item-action">
+												<div class="d-flex w-100 justify-content-between">
+													<h6 class="mb-1">@rec.CourseTitle</h6>
+												</div>
+												<p class="mb-1">@rec.Rationale</p>
+											</div>
+										}
+									</div>
+								}
+								else
+								{
+									<p class="text-muted">Рекомендации не сформированы.</p>
+								}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex gap-3">
+                        <button class="btn btn-success" @onclick="DownloadExcel">
+                            Скачать Excel
+                        </button>
+                        <button class="btn btn-outline-success" @onclick="DownloadJson">
+                            Скачать JSON
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
 </div>
 
 @code {
-	private IBrowserFile? surveyFile;
-	private string selectedVariant = "foreign";
-	private bool isLoading;
-	private string? errorMessage;
-	private List<string>? warnings;
-	private AnalysisResultApiModel? analysisResult;
-	private AnalysisResultApiModel? analysisResultObject;
-	private string? analysisDataJson;
-	private DashboardData? dashboardData;
+    private IBrowserFile? historyFile;
+    private IBrowserFile? catalogFile;
+    private string selectedVariant = "foreign";
+    private bool isLoading;
+    private string? errorMessage;
+    private List<string>? warnings;
+    private AnalysisResultApiModel? analysisResult;
+    private string? reportDataJson;
+    private int currentEmployeeIndex = 0;
 
-	private void HandleSurveyFile(InputFileChangeEventArgs e) => surveyFile = e.File;
+    private void HandleHistoryFile(InputFileChangeEventArgs e) => historyFile = e.File;
+    private void HandleCatalogFile(InputFileChangeEventArgs e) => catalogFile = e.File;
 
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		if (dashboardData != null)
-		{
-			await RenderCharts();
-		}
-	}
+	private bool showCsvWarning =>
+		historyFile != null &&
+		catalogFile != null &&
+		Path.GetExtension(historyFile.Name).Equals(".csv", StringComparison.OrdinalIgnoreCase) &&
+		Path.GetExtension(catalogFile.Name).Equals(".csv", StringComparison.OrdinalIgnoreCase);
 
-	private async Task RenderCharts()
-	{
-		await JS.InvokeVoidAsync("renderBarChart", dashboardData!.CriteriaLabels, dashboardData.AverageScores.Values.ToArray());
-		await JS.InvokeVoidAsync("renderRadarChart", dashboardData.CriteriaLabels, dashboardData.SpiderValues.Values.ToArray());
-		await JS.InvokeVoidAsync("renderDistributionChart", dashboardData.DistributionCounts);
-	}
+    private void PreviousEmployee()
+    {
+        if (currentEmployeeIndex > 0) currentEmployeeIndex--;
+    }
 
-	private async Task StartAnalysis()
-	{
-		if (surveyFile == null)
-		{
-			errorMessage = "Не выбран файл с анкетой";
-			return;
-		}
+    private void NextEmployee()
+    {
+        if (analysisResult != null && currentEmployeeIndex < analysisResult.TrajectoryAdvices.Count - 1)
+            currentEmployeeIndex++;
+    }
 
-		isLoading = true;
-		errorMessage = null;
-		analysisResult = null;
-		StateHasChanged();
+    private async Task StartAnalysis()
+    {
+        if (historyFile == null || catalogFile == null)
+        {
+            errorMessage = "Необходимо загрузить оба файла.";
+            return;
+        }
 
-		try
-		{
-			using var formData = new MultipartFormDataContent();
+        isLoading = true;
+        errorMessage = null;
+        analysisResult = null;
+        warnings = null;
+        currentEmployeeIndex = 0;
+        StateHasChanged();
 
-			var userFileContent = new StreamContent(surveyFile.OpenReadStream(maxAllowedSize: 100_000_000));
-			userFileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(surveyFile.ContentType ?? "application/octet-stream");
-			formData.Add(userFileContent, "userAnswers", surveyFile.Name);
+        try
+        {
+            using var formData = new MultipartFormDataContent();
 
-			var analysisMethodString = selectedVariant == "russian" ? "RussianAiAgent" : "ForeignAiAgent";
-			var requestUri = $"api/analysis/run?analysisMethod={analysisMethodString}";
+            var historyContent = new StreamContent(historyFile.OpenReadStream(maxAllowedSize: 100_000_000));
+            historyContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(historyFile.ContentType ?? "application/octet-stream");
+            formData.Add(historyContent, "learningHistory", historyFile.Name);
+
+            var catalogContent = new StreamContent(catalogFile.OpenReadStream(maxAllowedSize: 100_000_000));
+            catalogContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(catalogFile.ContentType ?? "application/octet-stream");
+            formData.Add(catalogContent, "courseCatalog", catalogFile.Name);
+
+            var variant = selectedVariant switch
+            {
+                "russian" => "RussianAiAgent",
+				"foreign" => "ForeignAiAgent",
+                "local" => "LocalAiAgent",
+                _ => "ForeignAiAgent"
+            };
+
+			var requestUri = $"api/analysis/run?analysisMethod={variant}";
 			var response = await Http.PostAsync(requestUri, formData);
 
-			if (response.IsSuccessStatusCode)
-			{
-				analysisDataJson = await response.Content.ReadAsStringAsync();
-				analysisResultObject = System.Text.Json.JsonSerializer.Deserialize<AnalysisResultApiModel>(
-					analysisDataJson,
-					new System.Text.Json.JsonSerializerOptions
-					{
-						PropertyNameCaseInsensitive = true,
-						Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() }
-					});
+            if (response.IsSuccessStatusCode)
+            {
+                reportDataJson = await response.Content.ReadAsStringAsync();
+                analysisResult = JsonSerializer.Deserialize<AnalysisResultApiModel>(
+                    reportDataJson,
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true,
+                        Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() }
+                    });
+                warnings = analysisResult?.Errors;
+            }
+            else
+            {
+                var errorJson = await response.Content.ReadAsStringAsync();
+                errorMessage = $"Ошибка сервера: {response.StatusCode}. {errorJson}";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Ошибка подключения: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
 
-				analysisResult = analysisResultObject;
-				warnings = analysisResult!.Errors;
-				PrepareDashboardData(analysisResultObject!);
-				StateHasChanged();
-				await Task.Delay(200); // дождаться рендера
-				await JS.InvokeVoidAsync("renderBarChart", dashboardData!.CriteriaLabels, dashboardData.AverageScores.Values.ToArray());
-				await JS.InvokeVoidAsync("renderRadarChart", dashboardData.CriteriaLabels, dashboardData.SpiderValues.Values.ToArray());
-				await JS.InvokeVoidAsync("renderDistributionChart", dashboardData.DistributionCounts);
-			}
-			else
-			{
-				var errorJson = await response.Content.ReadAsStringAsync();
-				errorMessage = $"Ошибка сервера: {response.StatusCode}. {errorJson}";
-			}
-		}
-		catch (Exception ex)
-		{
-			errorMessage = $"Ошибка подключения: {ex.Message}";
-		}
-		finally
-		{
-			isLoading = false;
-			StateHasChanged();
-		}
-	}
+    private async Task DownloadExcel()
+    {
+        if (analysisResult == null) return;
+        var response = await Http.PostAsJsonAsync("api/analysis/export/excel", analysisResult);
+        if (response.IsSuccessStatusCode)
+        {
+            var bytes = await response.Content.ReadAsByteArrayAsync();
+            var fileName = "Рекомендации_траекторий.xlsx";
+            if (response.Headers.TryGetValues("X-Filename", out var values))
+            {
+                var encoded = values.FirstOrDefault();
+                if (!string.IsNullOrEmpty(encoded))
+                    fileName = Uri.UnescapeDataString(encoded);
+            }
+            using var stream = new MemoryStream(bytes);
+            using var streamRef = new DotNetStreamReference(stream);
+            await JS.InvokeVoidAsync("downloadFileFromStream", streamRef, fileName);
+        }
+        else
+        {
+            errorMessage = "Не удалось скачать Excel-отчёт.";
+        }
+    }
 
-	private async Task DownloadWord()
-	{
-		if (analysisResultObject == null) return;
-		var response = await Http.PostAsJsonAsync("api/analysis/export/word", analysisResultObject);
-		if (response.IsSuccessStatusCode)
-		{
-			var bytes = await response.Content.ReadAsByteArrayAsync();
-			var fileName = "report.docx";
-			if (response.Headers.TryGetValues("X-Filename", out var values))
-			{
-				var encoded = values.FirstOrDefault();
-				if (!string.IsNullOrEmpty(encoded))
-					fileName = Uri.UnescapeDataString(encoded);
-			}
-			var stream = new MemoryStream(bytes);       // без using
-			var streamRef = new DotNetStreamReference(stream);   // оставить leaveOpen = false по умолчанию
-			await JS.InvokeVoidAsync("downloadFileFromStream", streamRef, fileName);
-		}
-		else
-		{
-			errorMessage = "Не удалось скачать Word-отчёт.";
-		}
-	}
-
-	private async Task DownloadExcel()
-	{
-		if (analysisResultObject == null) return;
-		var response = await Http.PostAsJsonAsync("api/analysis/export/excel", analysisResultObject);
-		if (response.IsSuccessStatusCode)
-		{
-			var bytes = await response.Content.ReadAsByteArrayAsync();
-			var fileName = "report.xlsx";
-			if (response.Headers.TryGetValues("X-Filename", out var values))
-			{
-				var encoded = values.FirstOrDefault();
-				if (!string.IsNullOrEmpty(encoded))
-					fileName = Uri.UnescapeDataString(encoded);
-			}
-			var stream = new MemoryStream(bytes);
-			var streamRef = new DotNetStreamReference(stream);
-			await JS.InvokeVoidAsync("downloadFileFromStream", streamRef, fileName);
-		}
-		else
-		{
-			errorMessage = "Не удалось скачать Excel-отчёт.";
-		}
-	}
-
-	private async Task DownloadDashboard()
-	{
-		if (dashboardData == null) return;
-		var html = GenerateDashboardHtml(dashboardData);
-		var bytes = System.Text.Encoding.UTF8.GetBytes(html);
-		using var stream = new MemoryStream(bytes);
-		using var streamRef = new DotNetStreamReference(stream);
-		await JS.InvokeVoidAsync("downloadFileFromStream", streamRef, "dashboard.html");
-	}
-
-	private string GenerateDashboardHtml(DashboardData data)
-	{
-		var sb = new System.Text.StringBuilder();
-		sb.AppendLine("<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Дашборд анализа</title>");
-		sb.AppendLine("<script src='https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js'></script>");
-		sb.AppendLine("<style>body{font-family:Arial;margin:20px;}.chart-container{width:600px;margin:20px auto;}</style></head><body>");
-		sb.AppendLine("<h1 style='text-align: center;'>Дашборд анализа анкет</h1>");
-
-		// Линейчатая диаграмма
-		sb.AppendLine("<div class='chart-container'><canvas id='barChart'></canvas></div><script>new Chart(document.getElementById('barChart').getContext('2d'),{type:'bar',data:{labels:" + JsonSerializer.Serialize(data.CriteriaLabels) + ",datasets:[{label:'Средний балл',data:" + JsonSerializer.Serialize(data.AverageScores.Values) + ",backgroundColor:['rgba(255,99,132,0.6)','rgba(54,162,235,0.6)','rgba(255,206,86,0.6)','rgba(75,192,192,0.6)','rgba(153,102,255,0.6)']}]},options:{scales:{y:{beginAtZero:true,max:10}}}});</script>");
-
-		// Лепестковая диаграмма
-		sb.AppendLine("<div class='chart-container'><canvas id='radarChart'></canvas></div><script>new Chart(document.getElementById('radarChart').getContext('2d'),{type:'radar',data:{labels:" + JsonSerializer.Serialize(data.CriteriaLabels) + ",datasets:[{label:'Профиль',data:" + JsonSerializer.Serialize(data.SpiderValues.Values) + ",borderColor:'rgba(75,192,192,1)',backgroundColor:'rgba(75,192,192,0.2)'}]},options:{scales:{r:{min:0,max:10}}}});</script>");
-
-		// Распределение оценок
-		sb.AppendLine("<div class='chart-container'><canvas id='distChart'></canvas></div><script>new Chart(document.getElementById('distChart').getContext('2d'),{type:'bar',data:{labels:['1-3 (низкая)','4-7 (средняя)','8-10 (высокая)'],datasets:[{label:'Процент ответов',data:" + JsonSerializer.Serialize(data.DistributionCounts) + ",backgroundColor:['#FFC107','#FF9800','#4CAF50']}]}});</script>");
-
-		// Тепловая карта – таблица с цветами
-		sb.AppendLine("<div class='chart-container'><h3>Корреляционная матрица</h3><table style='border-collapse:collapse'><tr><th></th>");
-		foreach (var label in data.CriteriaLabels)
-			sb.AppendLine($"<th>{label}</th>");
-		sb.AppendLine("</tr>");
-		for (int i = 0; i < data.HeatMapData.Length; i++)
-		{
-			sb.AppendLine("<tr>");
-			sb.AppendLine($"<th>{data.CriteriaLabels[i]}</th>");
-			for (int j = 0; j < data.HeatMapData[i].Length; j++)
-			{
-				var val = data.HeatMapData[i][j];
-				var color = val > 0.7 ? "#4CAF50" : val > 0.3 ? "#FFC107" : "#F44336";
-				sb.AppendLine($"<td style='background:{color};color:white;text-align:center;padding:5px;'>{val:F2}</td>");
-			}
-			sb.AppendLine("</tr>");
-		}
-		sb.AppendLine("</table></div></body></html>");
-		return sb.ToString();
-	}
-
-	private void PrepareDashboardData(AnalysisResultApiModel result)
-	{
-		var criteria = result.AllCriteriaAnalysisData;
-		var avgScores = new Dictionary<string, double>();
-		var spider = new Dictionary<string, double>();
-
-		foreach (var c in criteria)
-		{
-			double val = c.CriterionData.Statistics?.Average ?? 0;
-			if (c.CriterionData.CriterionName == SurveyAnalysisConstants.Engagement)
-			{
-				val = c.CriterionData.Statistics?.NoPercent / 10 ?? 0;
-			}
-			avgScores[c.CriterionData.CriterionName] = val;
-			spider[c.CriterionData.CriterionName] = val;
-		}
-
-		double[][] heatMap = CalculateCorrelationMatrix(SurveyAnalysisConstants.CriteriaNames, result);
-
-		int low = 0, med = 0, high = 0;
-		foreach (var crit in criteria.Where(c => c.CriterionData.Statistics?.PercentLow.HasValue ?? false))
-		{
-			low += (int)crit.CriterionData.Statistics.PercentLow!;
-			med += (int)crit.CriterionData.Statistics.PercentMedium!;
-			high += (int)crit.CriterionData.Statistics.PercentHigh!;
-		}
-
-		dashboardData = new DashboardData
-		{
-			AverageScores = avgScores,
-			SpiderValues = spider,
-			HeatMapData = heatMap,
-			CriteriaLabels = SurveyAnalysisConstants.CriteriaNames,
-			DistributionCounts = new[] { low, med, high },
-			OverallSatisfaction = Math.Round(avgScores.Values.Average(), 1)
-		};
-	}
-
-	private double[][] CalculateCorrelationMatrix(string[] labels, AnalysisResultApiModel result)
-	{
-		// Формируем словарь: название критерия -> список оценок (восстановленных из Distribution)
-		var data = new Dictionary<string, List<double>>();
-		foreach (var c in result.AllCriteriaAnalysisData)
-		{
-			var stats = c.CriterionData?.Statistics;
-			if (stats == null) continue;
-
-			if (stats.Average.HasValue && stats.Distribution != null && stats.Distribution.Count > 0)
-			{
-				// Восстанавливаем вектор оценок
-				var scores = new List<double>();
-				foreach (var kv in stats.Distribution)
-					for (int i = 0; i < kv.Value; i++)
-						scores.Add(kv.Key);
-				data[c.CriterionData!.CriterionName] = scores;
-			}
-			else if (c.CriterionData!.CriterionName == SurveyAnalysisConstants.Engagement)
-			{
-				// Для вовлечённости кодируем 1 = "Да", 10 = "Нет"
-				var engScores = new List<double>();
-				int yes = stats.YesCount ?? 0;
-				int no = stats.NoCount ?? 0;
-				for (int i = 0; i < yes; i++) engScores.Add(1);
-				for (int i = 0; i < no; i++) engScores.Add(10);
-				data[c.CriterionData.CriterionName] = engScores;
-			}
-		}
-
-		int n = labels.Length;
-		double[][] matrix = new double[n][];
-		for (int i = 0; i < n; i++)
-		{
-			matrix[i] = new double[n];
-			for (int j = 0; j < n; j++)
-			{
-				if (data.ContainsKey(labels[i]) && data.ContainsKey(labels[j]) &&
-					data[labels[i]].Count == data[labels[j]].Count && data[labels[i]].Count > 1)
-				{
-					matrix[i][j] = Math.Round(PearsonCorrelation(data[labels[i]], data[labels[j]]), 2);
-				}
-				else
-				{
-					matrix[i][j] = (i == j) ? 1.0 : 0.0;
-				}
-			}
-		}
-		return matrix;
-	}
-
-	private double PearsonCorrelation(List<double> x, List<double> y)
-	{
-		int n = x.Count;
-		double sumX = x.Sum(), sumY = y.Sum();
-		double sumX2 = x.Sum(v => v * v), sumY2 = y.Sum(v => v * v);
-		double sumXY = x.Zip(y, (a, b) => a * b).Sum();
-
-		double numerator = n * sumXY - sumX * sumY;
-		double denominator = Math.Sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
-		return denominator == 0 ? 0 : numerator / denominator;
-	}
+    private async Task DownloadJson()
+    {
+        if (reportDataJson == null) return;
+        byte[] bytes = Encoding.UTF8.GetBytes(reportDataJson);
+        using var stream = new MemoryStream(bytes);
+        using var streamRef = new DotNetStreamReference(stream);
+        await JS.InvokeVoidAsync("downloadFileFromStream", streamRef, "trajectories.json");
+    }
 }

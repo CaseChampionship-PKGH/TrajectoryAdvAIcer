@@ -15,5 +15,5 @@ public class AnalysisResultApiModel
     /// <summary>
     /// Список возникших в процессе валидации ошибок
     /// </summary>
-    public List<string> Errors { get; set; } = null!;
+    public List<string> Errors { get; set; } = [];
 }
