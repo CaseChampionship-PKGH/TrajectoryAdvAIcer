@@ -16,5 +16,5 @@ public interface ITrajectoryAdvicerAgent
     Task<TrajectoryAnalysisResult> GenerateTrajectoryForEmployeeAsync(Employee profile,
         List<string> passedCourses,
         List<RecommendedCourse> recommendedCourses,
-        LlmVariant llmVariant);
+        LlmVariant llmVariant, CancellationToken cancellationToken);
 }
