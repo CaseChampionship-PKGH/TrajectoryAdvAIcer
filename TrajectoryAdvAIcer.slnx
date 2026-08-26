@@ -7,6 +7,7 @@
   <Folder Name="/Core/Agents/">
     <Project Path="Core/Agents/TrajectoryAdvAIcer.Agent.Contracts/TrajectoryAdvAIcer.Agent.Contracts.csproj" Id="68b55988-adea-4888-9311-7196c45ed42f" />
     <Project Path="Core/Agents/TrajectoryAdvAIcer.Agent.GigaChat/TrajectoryAdvAIcer.Agent.GigaChat.csproj" Id="881b7649-a325-4ab1-bc9e-bdd4bcf4d63d" />
+    <Project Path="Core/Agents/TrajectoryAdvAIcer.Agent.Ollama/TrajectoryAdvAIcer.Agent.Ollama.csproj" Id="5add0e78-ef18-47fa-8e2d-81f6fc8e33a7" />
     <Project Path="Core/Agents/TrajectoryAdvAIcer.Agent.OpenAI/TrajectoryAdvAIcer.Agent.OpenAI.csproj" Id="b5b9255e-43ee-42f6-902f-d2a47ef3b8fe" />
     <Project Path="Core/Agents/TrajectoryAdvAIcer.Agent.YandexGPT/TrajectoryAdvAIcer.Agent.YandexGPT.csproj" Id="d2e83fc1-5bfe-40a5-ab1a-40321e53eb1b" />
     <Project Path="Core/Agents/TrajectoryAdvAIcer.Agent/TrajectoryAdvAIcer.Agent.csproj" Id="15fb6390-fabb-4a83-97eb-74fd0969c9a0" />

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using TrajectoryAdvAIcer.Agent;
 using TrajectoryAdvAIcer.Agent.Contracts.Interfaces;
+using TrajectoryAdvAIcer.Agent.Ollama;
 using TrajectoryAdvAIcer.Analysis;
 using TrajectoryAdvAIcer.Api.AutoMappers;
 using TrajectoryAdvAIcer.Common.Mvc.Extensions;
@@ -92,6 +93,12 @@ public class ApiModule : Module
             client.BaseAddress = new Uri(config["ForeignLLM:BaseUrl"]!);
         });
         services.RegisterMultipleInterfacesAssignableTo<ILlmClient, MockLlmClient>(ServiceLifetime.Singleton);
+
+        services.AddHttpClient("LocalLLM", client =>
+        {
+            client.BaseAddress = new Uri(config["LocalLLM:BaseUrl"]!);
+        });
+        services.RegisterMultipleInterfacesAssignableTo<ILlmClient, OllamaLlmClient>(ServiceLifetime.Singleton);
         services.RegisterAsImplementedInterfaces<ParserFactory>(ServiceLifetime.Singleton);
         services.RegisterAsImplementedInterfaces<FormatDetector>(ServiceLifetime.Singleton);
         services.RegisterAsImplementedInterfaces<DataValidator>(ServiceLifetime.Singleton);

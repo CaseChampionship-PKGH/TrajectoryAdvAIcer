@@ -1,11 +1,11 @@
 ﻿using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 using TrajectoryAdvAIcer.Agent.Contracts.Enums;
 using TrajectoryAdvAIcer.Agent.Contracts.Interfaces;
 using TrajectoryAdvAIcer.Agent.Contracts.Models;
 using TrajectoryAdvAIcer.Agent.GigaChat.Models;
-using Microsoft.Extensions.Configuration;
 
 namespace TrajectoryAdvAIcer.Agent.GigaChat;
 
@@ -50,7 +50,7 @@ public class GigaChatLlmClient : ILlmClient
             Model = model,
             Messages =
             [
-                new() { Role = "system", Content = "Ты — аналитик образовательных программ." },
+                new() { Role = "system", Content = "Ты — консультант по обучению государственных гражданских служащих." },
                 new() { Role = "user", Content = llmRequest.RawPrompt }
             ],
             Temperature = 0,

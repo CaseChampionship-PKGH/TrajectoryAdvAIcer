@@ -1,11 +1,11 @@
 ﻿using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 using TrajectoryAdvAIcer.Agent.Contracts.Enums;
 using TrajectoryAdvAIcer.Agent.Contracts.Interfaces;
 using TrajectoryAdvAIcer.Agent.Contracts.Models;
 using TrajectoryAdvAIcer.Agent.YandexGPT.Models;
-using Microsoft.Extensions.Configuration;
 
 namespace TrajectoryAdvAIcer.Agent.YandexGPT;
 
@@ -45,7 +45,7 @@ public class YandexGPTllmClient : ILlmClient
             },
             Messages =
             [
-                new Message { Role = "system", Text = "Ты — эксперт по проверке тестовых заданий." },
+                new Message { Role = "system", Text = "Ты — консультант по обучению государственных гражданских служащих." },
                 new Message { Role = "user", Text = llmRequest.RawPrompt }
             ]
         };

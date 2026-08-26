@@ -13,5 +13,10 @@ public enum LlmVariant
     /// <summary>
     /// Зарубежная группа ИИ-Агентов
     /// </summary>
-    Foreign
+    Foreign,
+
+    /// <summary>
+    /// Локально-установленная группа ИИ-Агентов
+    /// </summary>
+    Local
 }
