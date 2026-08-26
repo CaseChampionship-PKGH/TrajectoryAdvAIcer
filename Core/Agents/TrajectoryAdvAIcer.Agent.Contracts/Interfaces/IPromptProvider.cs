@@ -1,4 +1,4 @@
-﻿using TrajectoryAdvAIcer.Analysis.Contracts.Models.Aggregation;
+﻿using TrajectoryAdvAIcer.Entities.Models;
 
 namespace TrajectoryAdvAIcer.Agent.Contracts.Interfaces;
 
@@ -10,10 +10,5 @@ public interface IPromptProvider
     /// <summary>
     /// Формирует промпт для получения примечания по критерию
     /// </summary>
-    string BuildCriterionNotePrompt(CriterionPromptData criterionData);
-
-    /// <summary>
-    /// Формирует промпт для генерации раздела "Траектория изменения программы"
-    /// </summary>
-    string BuildTrajectoryPrompt(AggregatedCriteriaData allData, List<string> notes);
+    string BuildCriterionNotePrompt(LearningHistory learningHistory, IEnumerable<string> recommendedIds, CourseCatalog courseCatalog);
 }
