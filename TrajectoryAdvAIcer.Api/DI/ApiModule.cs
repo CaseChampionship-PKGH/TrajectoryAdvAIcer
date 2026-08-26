@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Logging.Abstractions;
 using TrajectoryAdvAIcer.Agent;
 using TrajectoryAdvAIcer.Agent.Contracts.Interfaces;
 using TrajectoryAdvAIcer.Agent.GigaChat;
@@ -7,6 +8,7 @@ using TrajectoryAdvAIcer.Analysis;
 using TrajectoryAdvAIcer.Api.AutoMappers;
 using TrajectoryAdvAIcer.Common.Mvc.Extensions;
 using TrajectoryAdvAIcer.Parsing;
+using TrajectoryAdvAIcer.Parsing.Archive;
 using TrajectoryAdvAIcer.Parsing.Contracts.Interfaces;
 using TrajectoryAdvAIcer.Parsing.Csv;
 using TrajectoryAdvAIcer.Parsing.Excel;
@@ -15,7 +17,6 @@ using TrajectoryAdvAIcer.Reporting;
 using TrajectoryAdvAIcer.Reporting.Contracts.Interfaces;
 using TrajectoryAdvAIcer.Services;
 using TrajectoryAdvAIcer.Validation;
-using Microsoft.Extensions.Logging.Abstractions;
 using Module = TrajectoryAdvAIcer.Common.Mvc.Module;
 
 namespace TrajectoryAdvAIcer.Api.DI;
@@ -28,9 +29,23 @@ public class ApiModule : Module
     {
         var config = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
 
-        services.RegisterMultipleInterfacesAssignableTo<IDataParser, SurveyCsvParser>(ServiceLifetime.Singleton);
-        services.RegisterMultipleInterfacesAssignableTo<IDataParser, SurveyExcelParser>(ServiceLifetime.Singleton);
-        services.RegisterMultipleInterfacesAssignableTo<IDataParser, AgentResponseJsonParser>(ServiceLifetime.Singleton);
+        services.AddSingleton<LearningHistoryCsvParser>();
+        services.AddSingleton<LearningHistoryExcelParser>();
+        services.AddSingleton<LearningHistoryJsonParser>();
+        services.AddSingleton<LearningHistoryArchiveParser>();
+        services.RegisterMultipleInterfacesAssignableTo<IDataParser, LearningHistoryCsvParser>(ServiceLifetime.Singleton);
+        services.RegisterMultipleInterfacesAssignableTo<IDataParser, LearningHistoryExcelParser>(ServiceLifetime.Singleton);
+        services.RegisterMultipleInterfacesAssignableTo<IDataParser, LearningHistoryJsonParser>(ServiceLifetime.Singleton);
+        services.RegisterMultipleInterfacesAssignableTo<IDataParser, LearningHistoryArchiveParser>(ServiceLifetime.Singleton);
+
+        services.AddSingleton<CourseCatalogCsvParser>();
+        services.AddSingleton<CourseCatalogExcelParser>();
+        services.AddSingleton<CourseCatalogJsonParser>();
+        services.AddSingleton<CourseCatalogArchiveParser>();
+        services.RegisterMultipleInterfacesAssignableTo<IDataParser, CourseCatalogCsvParser>(ServiceLifetime.Singleton);
+        services.RegisterMultipleInterfacesAssignableTo<IDataParser, CourseCatalogExcelParser>(ServiceLifetime.Singleton);
+        services.RegisterMultipleInterfacesAssignableTo<IDataParser, CourseCatalogJsonParser>(ServiceLifetime.Singleton);
+        services.RegisterMultipleInterfacesAssignableTo<IDataParser, CourseCatalogArchiveParser>(ServiceLifetime.Singleton);
 
         services.AddHttpClient("RussianLLMAccessToken", client =>
         {
@@ -80,7 +95,7 @@ public class ApiModule : Module
         services.RegisterAsImplementedInterfaces<ParserFactory>(ServiceLifetime.Singleton);
         services.RegisterAsImplementedInterfaces<FormatDetector>(ServiceLifetime.Singleton);
         services.RegisterAsImplementedInterfaces<StatisticsCalculator>(ServiceLifetime.Singleton);
-        services.RegisterAsImplementedInterfaces<SurveyAnalysisPipeline>(ServiceLifetime.Singleton);
+        services.RegisterAsImplementedInterfaces<TrajectoryAnalysisPipeline>(ServiceLifetime.Singleton);
         services.RegisterAsImplementedInterfaces<DataValidator>(ServiceLifetime.Singleton);
         services.RegisterAsImplementedInterfaces<SurveyAggregator>(ServiceLifetime.Singleton);
         services.RegisterAsImplementedInterfaces<DefaultPromptProvider>(ServiceLifetime.Singleton);

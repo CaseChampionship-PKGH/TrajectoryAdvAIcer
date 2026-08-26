@@ -1,7 +1,7 @@
 ﻿namespace TrajectoryAdvAIcer.Entities.Models;
 
 /// <summary>
-/// Каталог всех курсов
+/// Реестр всех курсов
 /// </summary>
 public class CourseCatalog
 {

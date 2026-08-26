@@ -19,6 +19,7 @@
     <Project Path="Core/Entities/TrajectoryAdvAIcer.Entities/TrajectoryAdvAIcer.Entities.csproj" Id="03f072d3-5937-4d75-a76c-d4353c6e4def" />
   </Folder>
   <Folder Name="/Core/Parsing/">
+    <Project Path="Core/Parsing/TrajectoryAdvAIcer.Parsing.Archive/TrajectoryAdvAIcer.Parsing.Archive.csproj" Id="78659756-931e-4643-9781-c21309c8cadc" />
     <Project Path="Core/Parsing/TrajectoryAdvAIcer.Parsing.Contracts/TrajectoryAdvAIcer.Parsing.Contracts.csproj" Id="9e217f39-06b9-4ad1-8121-43ceb36de55f" />
     <Project Path="Core/Parsing/TrajectoryAdvAIcer.Parsing.Csv/TrajectoryAdvAIcer.Parsing.Csv.csproj" Id="80aebad6-6357-43b8-a40d-d66fc18def30" />
     <Project Path="Core/Parsing/TrajectoryAdvAIcer.Parsing.Excel/TrajectoryAdvAIcer.Parsing.Excel.csproj" Id="d1202028-b3a9-4bec-bfa1-8091c17e6833" />

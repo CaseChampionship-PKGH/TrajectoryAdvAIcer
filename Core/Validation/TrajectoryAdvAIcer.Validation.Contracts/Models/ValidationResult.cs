@@ -20,5 +20,5 @@ public record ValidationResult
     /// <summary>
     /// Валидные данные, готовые к анализу
     /// </summary>
-    public Survey ValidatedResults { get; set; } = null!;
+    public LearningHistory ValidatedResults { get; set; } = null!;
 }

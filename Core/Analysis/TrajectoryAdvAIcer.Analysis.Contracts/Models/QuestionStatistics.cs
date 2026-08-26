@@ -10,7 +10,7 @@ public class QuestionStatistics
     /// <summary>
     /// Связанный вопрос с статистикой
     /// </summary>
-    public SurveyQuestion Question { get; set; } = null!;
+    public LearningHistory Question { get; set; } = null!;
 
     // Для Numeric
 

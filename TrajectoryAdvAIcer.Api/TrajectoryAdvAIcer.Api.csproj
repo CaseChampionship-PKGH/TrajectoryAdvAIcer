@@ -17,6 +17,7 @@
     <ProjectReference Include="..\Core\Agents\TrajectoryAdvAIcer.Agent.YandexGPT\TrajectoryAdvAIcer.Agent.YandexGPT.csproj" />
     <ProjectReference Include="..\Core\Agents\TrajectoryAdvAIcer.Agent\TrajectoryAdvAIcer.Agent.csproj" />
     <ProjectReference Include="..\Core\Analysis\TrajectoryAdvAIcer.Analysis\TrajectoryAdvAIcer.Analysis.csproj" />
+    <ProjectReference Include="..\Core\Parsing\TrajectoryAdvAIcer.Parsing.Archive\TrajectoryAdvAIcer.Parsing.Archive.csproj" />
     <ProjectReference Include="..\Core\Parsing\TrajectoryAdvAIcer.Parsing.Csv\TrajectoryAdvAIcer.Parsing.Csv.csproj" />
     <ProjectReference Include="..\Core\Parsing\TrajectoryAdvAIcer.Parsing.Excel\TrajectoryAdvAIcer.Parsing.Excel.csproj" />
     <ProjectReference Include="..\Core\Parsing\TrajectoryAdvAIcer.Parsing.Json\TrajectoryAdvAIcer.Parsing.Json.csproj" />
