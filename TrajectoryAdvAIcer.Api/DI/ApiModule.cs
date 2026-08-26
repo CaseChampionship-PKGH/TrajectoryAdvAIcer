@@ -102,10 +102,9 @@ public class ApiModule : Module
         services.RegisterAsImplementedInterfaces<LlmFactory>(ServiceLifetime.Singleton);
         services.RegisterAsImplementedInterfaces<LlmTrajectoryAdvicerAgent>(ServiceLifetime.Singleton);
         services.RegisterMultipleInterfacesAssignableTo<IReportExporter, ExcelReportExporter>(ServiceLifetime.Singleton);
-        services.RegisterMultipleInterfacesAssignableTo<IReportExporter, WordReportExporter>(ServiceLifetime.Singleton);
         services.RegisterAsImplementedInterfaces<TrajectoryAnalysisPipeline>(ServiceLifetime.Singleton);
         services.RegisterAsImplementedInterfaces<ReportExporterFactory>(ServiceLifetime.Singleton);
-        services.RegisterAutoMapperProfile<SurveyAnalysisApiProfile>();
+        services.RegisterAutoMapperProfile<TrajectoryAnalysisApiProfile>();
         RegisterAutoMapper(services);
         services.AddHttpContextAccessor();
     }

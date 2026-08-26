@@ -8,10 +8,5 @@ public enum ExportType
     /// <summary>
     /// Excel
     /// </summary>
-    Excel,
-
-    /// <summary>
-    /// Word
-    /// </summary>
-    Word
+    Excel
 }

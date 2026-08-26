@@ -1,91 +1,83 @@
-﻿using TrajectoryAdvAIcer.Analysis.Contracts.Models;
+﻿using ClosedXML.Excel;
+using TrajectoryAdvAIcer.Analysis.Contracts.Models;
 using TrajectoryAdvAIcer.Reporting.Contracts.Interfaces;
 using TrajectoryAdvAIcer.Reporting.Contracts.Models;
-using TrajectoryAdvAIcer.Services.Contracts.Constants;
 
 namespace TrajectoryAdvAIcer.Reporting;
 
 /// <inheritdoc cref="IReportExporter"/>
 public class ExcelReportExporter : IReportExporter
 {
-    private readonly static string[] headers = SurveyAnalysisConstants.CriteriaNames.Concat(["Общая оценка удовлетворённости"]).ToArray();
+    private readonly static string[] headers = { "ФИО", "Должность", "ИОГВ", "Рекомендованная траектория обучения" };
 
     ExportType IReportExporter.ExportType => ExportType.Excel;
 
     byte[] IReportExporter.Export(AnalysisResult analysisResult)
     {
-        //using var workbook = new XLWorkbook();
-        //var ws = workbook.Worksheets.Add("Анализ программы");
+        using var workbook = new XLWorkbook();
+        var ws = workbook.Worksheets.Add("Рекомендации");
 
-        //ws.Cell(2, 2).Value = "Количественные показатели по программе";
-        //ws.Cell(2, 2).Style.Font.Bold = true;
-        //ws.Cell(2, 2).Style.Font.FontSize = 11;
-        //var headerRange = ws.Range(2, 2, 2, 7).Merge();
-        //headerRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-        //headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-        //headerRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#DEEBF6");
+        ws.Row(1).Height = 10;
 
-        //for (var i = 0; i < headers.Length; i++)
-        //{
-        //    var cell = ws.Cell(3, i + 2);
-        //    cell.Value = headers[i];
-        //    cell.Style.Font.FontSize = 11;
+        var titleCell = ws.Cell(2, 1);
+        titleCell.Value = "Рекомендации траекторий обучений для сотрудников";
+        titleCell.Style.Font.Bold = true;
+        titleCell.Style.Font.FontSize = 14;
+        titleCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+        titleCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+        ws.Range(2, 1, 2, 4).Merge();
+        ws.Row(2).Height = 25;
 
-        //    cell.Style.Fill.BackgroundColor = XLColor.FromHtml("#DEEBF6");
-        //    cell.Style.Alignment.WrapText = true;
-        //}
+        ws.Row(3).Height = 10;
 
-        //var criteria = analysisResult.AllCriteriaAnalysisData;
-        //var usefulness = GetAverage(criteria, SurveyAnalysisConstants.Usefulness);
-        //var practicality = GetAverage(criteria, SurveyAnalysisConstants.Practicality);
-        //var accessibility = GetAverage(criteria, SurveyAnalysisConstants.Accessibility);
-        //var engagement = GetEngagementPercent(criteria);
-        //var interaction = GetAverage(criteria, SurveyAnalysisConstants.Interaction);
+        for (var i = 0; i < headers.Length; i++)
+        {
+            var cell = ws.Cell(4, i + 1);
+            cell.Value = headers[i];
+            cell.Style.Font.Bold = true;
+            cell.Style.Fill.BackgroundColor = XLColor.LightGray;
+            cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+            cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+        }
 
-        //double? overall = null;
-        //if (usefulness.HasValue && practicality.HasValue && accessibility.HasValue && interaction.HasValue && engagement.HasValue)
-        //{
-        //    overall = (usefulness.Value + practicality.Value + accessibility.Value + interaction.Value) / 4.0;
-        //}
+        var row = 5;
+        foreach (var rec in analysisResult.TrajectoryAdvices)
+        {
+            ws.Cell(row, 1).Value = rec.Profile.FullName;
+            ws.Cell(row, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            ws.Cell(row, 1).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 
-        //var dataRow = 4;
-        //ws.Cell(dataRow, 2).Value = usefulness?.ToString("F2") ?? "—";
-        //ws.Cell(dataRow, 3).Value = practicality?.ToString("F2") ?? "—";
-        //ws.Cell(dataRow, 4).Value = accessibility?.ToString("F2") ?? "—";
-        //ws.Cell(dataRow, 5).Value = engagement.HasValue ? $"{engagement.Value:F2}%" : "—";
-        //ws.Cell(dataRow, 6).Value = interaction?.ToString("F2") ?? "—";
-        //ws.Cell(dataRow, 7).Value = overall?.ToString("F10") ?? "—";
+            ws.Cell(row, 2).Value = rec.Profile.Position;
+            ws.Cell(row, 2).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            ws.Cell(row, 2).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 
-        //var criterianCells = ws.Range(dataRow - 1, 2, dataRow - 1, 7);
-        //criterianCells.Style.Font.FontSize = 11;
-        //criterianCells.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-        //criterianCells.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+            ws.Cell(row, 3).Value = rec.Profile.IOGV;
+            ws.Cell(row, 3).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            ws.Cell(row, 3).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 
-        //var dataCells = ws.Range(dataRow, 2, dataRow, 7);
-        //dataCells.Style.Font.FontSize = 11;
-        //dataCells.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-        //dataCells.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+            var trajectoryText = string.Join("\n", rec.Trajectory.Select((t, index) =>
+                $"{index + 1}. «{t.CourseTitle}» – {t.Rationale}"));
 
-        //var tableRange = ws.Range(2, 2, dataRow, 7);
-        //tableRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-        //tableRange.Style.Border.OutsideBorderColor = XLColor.Black;
-        //tableRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
-        //tableRange.Style.Border.InsideBorderColor = XLColor.Black;
+            var trajectoryCell = ws.Cell(row, 4);
+            trajectoryCell.Value = trajectoryText;
+            trajectoryCell.Style.Alignment.WrapText = true;
+            trajectoryCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Top;
+            trajectoryCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
 
-        //tableRange.Style.Alignment.WrapText = true;
+            row++;
+        }
 
-        //for (var col = 2; col <= 7; col++)
-        //{
-        //    ws.Column(col).Width = 25;
-        //}
+        ws.Columns("A:C").AdjustToContents();
+        ws.Column("D").Width = 80;
+        ws.Rows().AdjustToContents();
 
-        //ws.Row(2).Height = 25;
-        //ws.Row(3).Height = 50;
-        //ws.Row(4).Height = 50;
+        var range = ws.Range(1, 1, row - 1, 4);
+        range.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+        range.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
 
-        //using var stream = new MemoryStream();
-        //workbook.SaveAs(stream);
-        //return stream.ToArray();
-        return [];
+        using var stream = new MemoryStream();
+        workbook.SaveAs(stream);
+        return stream.ToArray();
     }
 }

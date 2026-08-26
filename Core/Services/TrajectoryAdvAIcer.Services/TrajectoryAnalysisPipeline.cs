@@ -8,6 +8,8 @@ using TrajectoryAdvAIcer.Entities.Enums;
 using TrajectoryAdvAIcer.Entities.Models;
 using TrajectoryAdvAIcer.Parsing.Contracts.Enums;
 using TrajectoryAdvAIcer.Parsing.Contracts.Interfaces;
+using TrajectoryAdvAIcer.Reporting.Contracts.Interfaces;
+using TrajectoryAdvAIcer.Reporting.Contracts.Models;
 using TrajectoryAdvAIcer.Services.Contracts.Interfaces;
 using TrajectoryAdvAIcer.Services.Contracts.Models;
 using TrajectoryAdvAIcer.Validation.Contracts.Interfaces;
@@ -27,7 +29,7 @@ public class TrajectoryAnalysisPipeline : IPipelineService
     private readonly ITopCourseSelector topCourseSelector;
     private readonly ITrajectoryAdvicerAgent trajectoryAdvicerAnalysisAgent;
 
-    //private readonly IReportExporterFactory reportExporterFactory;
+    private readonly IReportExporterFactory reportExporterFactory;
 
     /// <summary>
     /// Инициализирует новый экземпляр <see cref="TrajectoryAnalysisPipeline"/>
@@ -38,8 +40,8 @@ public class TrajectoryAnalysisPipeline : IPipelineService
         ICollaborativeFilteringService collaborativeFilteringService,
         ICourseCandidateSelector courseCandidateSelector,
         ITopCourseSelector topCourseSelector,
-        ITrajectoryAdvicerAgent trajectoryAdvicerAnalysisAgent)
-    //IReportExporterFactory reportExporterFactory)
+        ITrajectoryAdvicerAgent trajectoryAdvicerAnalysisAgent,
+        IReportExporterFactory reportExporterFactory)
     {
         this.formatDetector = formatDetector;
         this.parserFactory = parserFactory;
@@ -48,7 +50,7 @@ public class TrajectoryAnalysisPipeline : IPipelineService
         this.courseCandidateSelector = courseCandidateSelector;
         this.topCourseSelector = topCourseSelector;
         this.trajectoryAdvicerAnalysisAgent = trajectoryAdvicerAnalysisAgent;
-        //this.reportExporterFactory = reportExporterFactory;
+        this.reportExporterFactory = reportExporterFactory;
     }
 
     async Task<PipelineResult> IPipelineService.RunAsync(PipelineContext context)
@@ -126,9 +128,8 @@ public class TrajectoryAnalysisPipeline : IPipelineService
 
     async Task<byte[]> IPipelineService.ExportStatsExcel(AnalysisResult result)
     {
-        //var reportExporter = reportExporterFactory.GetReportExporter(ExportType.Excel);
-        //var excelBytes = reportExporter.Export(result);
-        //return excelBytes;
-        return [];
+        var reportExporter = reportExporterFactory.GetReportExporter(ExportType.Excel);
+        var excelBytes = reportExporter.Export(result);
+        return excelBytes;
     }
 }
