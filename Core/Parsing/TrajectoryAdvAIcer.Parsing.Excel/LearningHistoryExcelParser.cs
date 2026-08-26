@@ -87,6 +87,7 @@ public class LearningHistoryExcelParser : IDataParser
             {
                 EmployeeId = employee.Id,
                 CourseId = courseId,
+                CourseTitle = courseTitle,
                 Type = type,
                 Status = status
             });

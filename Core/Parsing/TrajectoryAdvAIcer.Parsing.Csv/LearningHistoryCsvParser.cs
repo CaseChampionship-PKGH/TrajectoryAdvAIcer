@@ -105,6 +105,7 @@ public class LearningHistoryCsvParser : IDataParser
             {
                 EmployeeId = employee.Id,
                 CourseId = courseId,
+                CourseTitle = courseTitle,
                 Type = type,
                 Status = status
             });
