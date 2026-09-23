@@ -8,6 +8,7 @@ using TrajectoryAdvAIcer.Parsing.Contracts.Enums;
 using TrajectoryAdvAIcer.Parsing.Contracts.Exceptions;
 using TrajectoryAdvAIcer.Parsing.Contracts.Helpers;
 using TrajectoryAdvAIcer.Parsing.Contracts.Interfaces;
+using TrajectoryAdvAIcer.Parsing.Contracts.Models;
 
 namespace TrajectoryAdvAIcer.Parsing.Csv;
 
@@ -23,7 +24,7 @@ public class LearningHistoryCsvParser : IDataParser
     public ParsingTarget Target => ParsingTarget.LearningHistory;
 
     /// <inheritdoc />
-    public async Task<T> ParseAsync<T>(Stream input)
+    public Task<ParseResult<T>> ParseAsync<T>(Stream input)
     {
         if (typeof(T) != typeof(LearningHistory))
         {
@@ -116,6 +117,6 @@ public class LearningHistoryCsvParser : IDataParser
             Employees = employees.Values.ToList(),
             Records = records
         };
-        return (T)(object)history;
+        return Task.FromResult(new ParseResult<T>((T)(object)history));
     }
 }

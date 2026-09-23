@@ -83,7 +83,11 @@ public class AnalysisController : ControllerBase
         Response.ContentType = "application/x-ndjson";
         Response.Headers.Append("Cache-Control", "no-cache");
         Response.Headers.Append("X-Content-Type-Options", "nosniff");
-        HttpContext.Features.Get<IHttpsCompressionFeature>()?.Mode = HttpsCompressionMode.DoNotCompress;
+        var compressionFeature = HttpContext.Features.Get<IHttpsCompressionFeature>();
+        if (compressionFeature != null)
+        {
+            compressionFeature.Mode = HttpsCompressionMode.DoNotCompress;
+        }
         await Response.Body.FlushAsync();
         await using var writer = new StreamWriter(Response.Body, Encoding.UTF8, leaveOpen: true);
 

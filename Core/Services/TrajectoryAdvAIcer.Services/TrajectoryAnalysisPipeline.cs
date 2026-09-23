@@ -5,7 +5,6 @@ using TrajectoryAdvAIcer.Analysis.Contracts.Enums;
 using TrajectoryAdvAIcer.Analysis.Contracts.Interfaces;
 using TrajectoryAdvAIcer.Analysis.Contracts.Models;
 using TrajectoryAdvAIcer.Analysis.Contracts.Models.Aggregation;
-using TrajectoryAdvAIcer.Entities.Enums;
 using TrajectoryAdvAIcer.Entities.Models;
 using TrajectoryAdvAIcer.Parsing.Contracts.Enums;
 using TrajectoryAdvAIcer.Parsing.Contracts.Interfaces;
@@ -106,11 +105,10 @@ public class TrajectoryAnalysisPipeline : IPipelineService
         };
     }
 
-    async Task<byte[]> IPipelineService.ExportStatsExcel(AnalysisResult result)
+    Task<byte[]> IPipelineService.ExportStatsExcel(AnalysisResult result)
     {
         var reportExporter = reportExporterFactory.GetReportExporter(ExportType.Excel);
-        var excelBytes = reportExporter.Export(result);
-        return excelBytes;
+        return Task.FromResult(reportExporter.Export(result));
     }
 
     private async Task<(LearningHistory History, CourseCatalog Catalog, List<string> Warnings)>
@@ -118,15 +116,20 @@ public class TrajectoryAnalysisPipeline : IPipelineService
     {
         var historyFormat = formatDetector.DetectFormat(context.LearningHistoryFileName, context.LearningHistoryStream);
         var historyParser = parserFactory.GetParser(historyFormat, ParsingTarget.LearningHistory);
-        var parsedHistory = await historyParser.ParseAsync<LearningHistory>(context.LearningHistoryStream);
+        var parseHistoryResult = await historyParser.ParseAsync<LearningHistory>(context.LearningHistoryStream);
 
         var catalogFormat = formatDetector.DetectFormat(context.CourseCatalogFileName, context.CourseCatalogStream);
         var catalogParser = parserFactory.GetParser(catalogFormat, ParsingTarget.CourseCatalog);
-        var parsedCatalog = await catalogParser.ParseAsync<CourseCatalog>(context.CourseCatalogStream);
+        var parsedCatalogResult = await catalogParser.ParseAsync<CourseCatalog>(context.CourseCatalogStream);
 
-        var validationResult = dataValidator.Validate(parsedHistory, parsedCatalog);
+        var validationResult = dataValidator.Validate(parseHistoryResult.Data, parsedCatalogResult.Data);
 
-        return (validationResult.ValidatedLearningHistory, parsedCatalog, validationResult.Warnings.ToList());
+        var warnings = new List<string>();
+        warnings.AddRange(parseHistoryResult.Warnings);
+        warnings.AddRange(parsedCatalogResult.Warnings);
+        warnings.AddRange(validationResult.Warnings);
+
+        return (validationResult.ValidatedLearningHistory, parsedCatalogResult.Data, warnings);
     }
 
     private async Task<EmployeeTrajectoryAdvice> ProcessSingleEmployeeAsync(
@@ -154,14 +157,7 @@ public class TrajectoryAnalysisPipeline : IPipelineService
             })
             .ToList();
 
-        var passedCourseIds = history.Records
-            .Where(r => r.EmployeeId == employee.Id && r.Status == CompletionStatus.Passed)
-            .Select(r => r.CourseId)
-            .ToHashSet();
-        var passedCourses = catalog.Courses
-            .Where(c => passedCourseIds.Contains(c.Id))
-            .Select(c => c.Title)
-            .ToList();
+        var passedCourses = PassedCoursesResolver.ResolvePassedCourses(employee.Id, history.Records, catalog);
 
         var llmVariant = analysisMethod switch
         {

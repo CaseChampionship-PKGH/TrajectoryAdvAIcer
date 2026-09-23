@@ -1,4 +1,5 @@
 ﻿using TrajectoryAdvAIcer.Parsing.Contracts.Enums;
+using TrajectoryAdvAIcer.Parsing.Contracts.Models;
 
 namespace TrajectoryAdvAIcer.Parsing.Contracts.Interfaces;
 
@@ -20,5 +21,5 @@ public interface IDataParser
     /// <summary>
     /// Распарсить данные
     /// </summary>
-    Task<T> ParseAsync<T>(Stream input);
+    Task<ParseResult<T>> ParseAsync<T>(Stream input);
 }

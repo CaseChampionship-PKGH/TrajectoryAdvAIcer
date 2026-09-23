@@ -3,6 +3,7 @@ using TrajectoryAdvAIcer.Entities.Models;
 using TrajectoryAdvAIcer.Parsing.Contracts.Enums;
 using TrajectoryAdvAIcer.Parsing.Contracts.Exceptions;
 using TrajectoryAdvAIcer.Parsing.Contracts.Interfaces;
+using TrajectoryAdvAIcer.Parsing.Contracts.Models;
 using TrajectoryAdvAIcer.Parsing.Csv;
 using TrajectoryAdvAIcer.Parsing.Excel;
 using TrajectoryAdvAIcer.Parsing.Json;
@@ -39,7 +40,7 @@ public class LearningHistoryArchiveParser : IDataParser
     /// <inheritdoc />
     public ParsingTarget Target => ParsingTarget.LearningHistory;
 
-    async Task<T> IDataParser.ParseAsync<T>(Stream input)
+    async Task<ParseResult<T>> IDataParser.ParseAsync<T>(Stream input)
     {
         if (typeof(T) != typeof(LearningHistory))
         {
@@ -47,6 +48,7 @@ public class LearningHistoryArchiveParser : IDataParser
         }
 
         var allResults = new LearningHistory();
+        var warnings = new List<string>();
         using var archive = new ZipArchive(input, ZipArchiveMode.Read, leaveOpen: true);
 
         foreach (var entry in archive.Entries)
@@ -76,28 +78,29 @@ public class LearningHistoryArchiveParser : IDataParser
                 continue;
             }
 
-            LearningHistory? parsed = null;
+            ParseResult<LearningHistory>? result = null;
 
             if (format == InputFormat.Csv)
             {
-                parsed = await csvParser.ParseAsync<LearningHistory>(ms);
+                result = await csvParser.ParseAsync<LearningHistory>(ms);
             }
             else if (format == InputFormat.Excel)
             {
-                parsed = await excelParser.ParseAsync<LearningHistory>(ms);
+                result = await excelParser.ParseAsync<LearningHistory>(ms);
             }
             else if (format == InputFormat.Json)
             {
-                parsed = await jsonParser.ParseAsync<LearningHistory>(ms);
+                result = await jsonParser.ParseAsync<LearningHistory>(ms);
             }
 
-            if (parsed != null)
+            if (result != null)
             {
-                allResults.Employees.AddRange(parsed.Employees);
-                allResults.Records.AddRange(parsed.Records);
+                warnings.AddRange(result.Warnings);
+                allResults.Employees.AddRange(result.Data.Employees);
+                allResults.Records.AddRange(result.Data.Records);
             }
         }
 
-        return (T)(object)allResults;
+        return new ParseResult<T>((T)(object)allResults, warnings);
     }
 }

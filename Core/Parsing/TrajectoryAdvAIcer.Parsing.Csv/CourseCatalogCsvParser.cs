@@ -6,6 +6,7 @@ using TrajectoryAdvAIcer.Entities.Models;
 using TrajectoryAdvAIcer.Parsing.Contracts.Enums;
 using TrajectoryAdvAIcer.Parsing.Contracts.Helpers;
 using TrajectoryAdvAIcer.Parsing.Contracts.Interfaces;
+using TrajectoryAdvAIcer.Parsing.Contracts.Models;
 
 namespace TrajectoryAdvAIcer.Parsing.Csv;
 
@@ -21,7 +22,7 @@ public class CourseCatalogCsvParser : IDataParser
     public ParsingTarget Target => ParsingTarget.CourseCatalog;
 
     /// <inheritdoc />
-    public async Task<T> ParseAsync<T>(Stream input)
+    public Task<ParseResult<T>> ParseAsync<T>(Stream input)
     {
         if (typeof(T) != typeof(CourseCatalog))
         {
@@ -66,6 +67,6 @@ public class CourseCatalogCsvParser : IDataParser
             };
             courses.Add(course);
         }
-        return (T)(object)new CourseCatalog { Courses = courses };
+        return Task.FromResult(new ParseResult<T>((T)(object)new CourseCatalog { Courses = courses }));
     }
 }

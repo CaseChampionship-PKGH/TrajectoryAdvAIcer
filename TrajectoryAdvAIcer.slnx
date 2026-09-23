@@ -25,6 +25,7 @@
     <Project Path="Core/Parsing/TrajectoryAdvAIcer.Parsing.Csv/TrajectoryAdvAIcer.Parsing.Csv.csproj" Id="80aebad6-6357-43b8-a40d-d66fc18def30" />
     <Project Path="Core/Parsing/TrajectoryAdvAIcer.Parsing.Excel/TrajectoryAdvAIcer.Parsing.Excel.csproj" Id="d1202028-b3a9-4bec-bfa1-8091c17e6833" />
     <Project Path="Core/Parsing/TrajectoryAdvAIcer.Parsing.Json/TrajectoryAdvAIcer.Parsing.Json.csproj" Id="7dbf0d9d-d11f-4543-9fe1-f8a2e6319250" />
+    <Project Path="Core/Parsing/TrajectoryAdvAIcer.Parsing.Tests/TrajectoryAdvAIcer.Parsing.Tests.csproj" />
     <Project Path="Core/Parsing/TrajectoryAdvAIcer.Parsing/TrajectoryAdvAIcer.Parsing.csproj" Id="81c0357f-7bee-4592-88c9-04a727c61484" />
   </Folder>
   <Folder Name="/Core/Reporting/">
@@ -34,6 +35,7 @@
   <Folder Name="/Core/Services/">
     <Project Path="Core/Services/TrajectoryAdvAIcer.Services.Contracts/TrajectoryAdvAIcer.Services.Contracts.csproj" Id="0ebd6e3a-bfbe-4238-9da1-41d14f0b07fa" />
     <Project Path="Core/Services/TrajectoryAdvAIcer.Services/TrajectoryAdvAIcer.Services.csproj" Id="c7830ca0-bd7c-4836-8fc0-750927d4b248" />
+    <Project Path="Core/Services/TrajectoryAdvAIcer.Services.Tests/TrajectoryAdvAIcer.Services.Tests.csproj" />
   </Folder>
   <Folder Name="/Core/Validation/">
     <Project Path="Core/Validation/TrajectoryAdvAIcer.Validation.Contracts/TrajectoryAdvAIcer.Validation.Contracts.csproj" Id="36a68661-51f8-4e02-a822-b041e0af5765" />

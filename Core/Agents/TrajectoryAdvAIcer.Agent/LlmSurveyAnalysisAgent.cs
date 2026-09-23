@@ -44,6 +44,6 @@ public class LlmTrajectoryAdvicerAgent : ITrajectoryAdvicerAgent
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(cleaned));
         var parser = parserFactory.GetParser(InputFormat.Json, ParsingTarget.AgentResponse);
 
-        return await parser.ParseAsync<TrajectoryAnalysisResult>(stream);
+        return (await parser.ParseAsync<TrajectoryAnalysisResult>(stream)).Data;
     }
 }

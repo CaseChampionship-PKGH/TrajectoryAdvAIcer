@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TrajectoryAdvAIcer.Parsing.Excel\TrajectoryAdvAIcer.Parsing.Excel.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\TestDocuments\Новые\Массив данных к кейсу 3.xlsx"
+          Link="TestData\Массив данных к кейсу 3.xlsx"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\..\TestDocuments\выгрузка с историей обучения.xlsx"
+          Link="TestData\выгрузка с историей обучения.xlsx"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

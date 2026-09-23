@@ -3,6 +3,7 @@ using TrajectoryAdvAIcer.Entities.Models;
 using TrajectoryAdvAIcer.Parsing.Contracts.Enums;
 using TrajectoryAdvAIcer.Parsing.Contracts.Exceptions;
 using TrajectoryAdvAIcer.Parsing.Contracts.Interfaces;
+using TrajectoryAdvAIcer.Parsing.Contracts.Models;
 
 namespace TrajectoryAdvAIcer.Parsing.Json;
 
@@ -24,7 +25,7 @@ public class CourseCatalogJsonParser : IDataParser
     public ParsingTarget Target => ParsingTarget.CourseCatalog;
 
     /// <inheritdoc />
-    public async Task<T> ParseAsync<T>(Stream input)
+    public async Task<ParseResult<T>> ParseAsync<T>(Stream input)
     {
         if (typeof(T) != typeof(CourseCatalog))
         {
@@ -53,7 +54,7 @@ public class CourseCatalogJsonParser : IDataParser
 
             return response == null
                 ? throw new ParsingException("Десериализованный реестр курсов равен null или не содержит результатов.")
-                : (T)(object)response;
+                : new ParseResult<T>((T)(object)response);
         }
         catch (JsonException ex)
         {

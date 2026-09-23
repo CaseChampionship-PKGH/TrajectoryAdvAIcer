@@ -3,6 +3,7 @@ using TrajectoryAdvAIcer.Entities.Models;
 using TrajectoryAdvAIcer.Parsing.Contracts.Enums;
 using TrajectoryAdvAIcer.Parsing.Contracts.Exceptions;
 using TrajectoryAdvAIcer.Parsing.Contracts.Interfaces;
+using TrajectoryAdvAIcer.Parsing.Contracts.Models;
 using TrajectoryAdvAIcer.Parsing.Csv;
 using TrajectoryAdvAIcer.Parsing.Excel;
 using TrajectoryAdvAIcer.Parsing.Json;
@@ -39,7 +40,7 @@ public class CourseCatalogArchiveParser : IDataParser
     /// <inheritdoc />
     public ParsingTarget Target => ParsingTarget.CourseCatalog;
 
-    async Task<T> IDataParser.ParseAsync<T>(Stream input)
+    async Task<ParseResult<T>> IDataParser.ParseAsync<T>(Stream input)
     {
         if (typeof(T) != typeof(CourseCatalog))
         {
@@ -47,6 +48,7 @@ public class CourseCatalogArchiveParser : IDataParser
         }
 
         var allResults = new CourseCatalog();
+        var warnings = new List<string>();
         using var archive = new ZipArchive(input, ZipArchiveMode.Read, leaveOpen: true);
 
         foreach (var entry in archive.Entries)
@@ -76,27 +78,28 @@ public class CourseCatalogArchiveParser : IDataParser
                 continue;
             }
 
-            CourseCatalog? parsed = null;
+            ParseResult<CourseCatalog>? result = null;
 
             if (format == InputFormat.Csv)
             {
-                parsed = await csvParser.ParseAsync<CourseCatalog>(ms);
+                result = await csvParser.ParseAsync<CourseCatalog>(ms);
             }
             else if (format == InputFormat.Excel)
             {
-                parsed = await excelParser.ParseAsync<CourseCatalog>(ms);
+                result = await excelParser.ParseAsync<CourseCatalog>(ms);
             }
             else if (format == InputFormat.Json)
             {
-                parsed = await jsonParser.ParseAsync<CourseCatalog>(ms);
+                result = await jsonParser.ParseAsync<CourseCatalog>(ms);
             }
 
-            if (parsed != null)
+            if (result != null)
             {
-                allResults.Courses.AddRange(parsed.Courses);
+                warnings.AddRange(result.Warnings);
+                allResults.Courses.AddRange(result.Data.Courses);
             }
         }
 
-        return (T)(object)allResults;
+        return new ParseResult<T>((T)(object)allResults, warnings);
     }
 }

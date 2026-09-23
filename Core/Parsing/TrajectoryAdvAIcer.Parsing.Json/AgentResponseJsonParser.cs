@@ -3,6 +3,7 @@ using TrajectoryAdvAIcer.Analysis.Contracts.Models.Trajectory;
 using TrajectoryAdvAIcer.Parsing.Contracts.Enums;
 using TrajectoryAdvAIcer.Parsing.Contracts.Exceptions;
 using TrajectoryAdvAIcer.Parsing.Contracts.Interfaces;
+using TrajectoryAdvAIcer.Parsing.Contracts.Models;
 
 namespace TrajectoryAdvAIcer.Parsing.Json;
 
@@ -21,7 +22,7 @@ public class AgentResponseJsonParser : IDataParser
     /// <inheritdoc />
     public ParsingTarget Target => ParsingTarget.AgentResponse;
 
-    async Task<T> IDataParser.ParseAsync<T>(Stream input)
+    async Task<ParseResult<T>> IDataParser.ParseAsync<T>(Stream input)
     {
         if (typeof(T) != typeof(TrajectoryAnalysisResult))
         {
@@ -51,7 +52,7 @@ public class AgentResponseJsonParser : IDataParser
 
             return response == null
                 ? throw new ParsingException("Десериализованный ответ агента равен null или не содержит результатов.")
-                : (T)(object)response;
+                : new ParseResult<T>((T)(object)response);
         }
         catch (JsonException ex)
         {
